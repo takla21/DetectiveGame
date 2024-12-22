@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace Detective;
 
-public class Inoncent
+public class PlayerRoleBase
 {
     private readonly LevelInformation _levelInformation;
 
@@ -15,7 +14,7 @@ public class Inoncent
     private int _id;
     private static int _idGen = 0;
 
-    public Inoncent(Vector2 position, LevelInformation placeInformation)
+    public PlayerRoleBase(Vector2 position, LevelInformation placeInformation)
     {
         _id = _idGen++;
         Position = position;

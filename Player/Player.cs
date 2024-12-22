@@ -5,7 +5,7 @@ namespace Detective;
 
 public class Player : IDisposable
 {
-    private Inoncent _role;
+    private PlayerRoleBase _role;
 
     public Player(string name, int size)
     {
@@ -13,7 +13,7 @@ public class Player : IDisposable
         Size = size;
     }
 
-    public void AssignRole(Inoncent role)
+    public void AssignRole(PlayerRoleBase role)
     {
         _role = role;
 

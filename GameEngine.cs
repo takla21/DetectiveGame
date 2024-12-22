@@ -76,7 +76,7 @@ public class GameEngine
         for (int i = 0; i < 5; i++)
         {
             var p = new Player("player" + (i + 1), 20);
-            var role = new Inoncent(new Vector2(1000, 500), information);
+            var role = new PlayerRoleBase(new Vector2(1000, 500), information);
 
             p.AssignRole(role);
 
