@@ -4,12 +4,12 @@ using System.Numerics;
 
 namespace Detective;
 
-public class PlayerRoleBase
+public abstract class PlayerRoleBase
 {
-    private readonly LevelInformation _levelInformation;
+    protected readonly LevelInformation LevelInformation;
 
-    private Stack<IMove> _futureMoves;
-    private IMove _currentMove;
+    protected Stack<IMove> FutureMoves;
+    protected IMove CurrentMove;
 
     private int _id;
     private static int _idGen = 0;
@@ -18,8 +18,8 @@ public class PlayerRoleBase
     {
         _id = _idGen++;
         Position = position;
-        _futureMoves = new Stack<IMove>();
-        _levelInformation = placeInformation;
+        FutureMoves = new Stack<IMove>();
+        LevelInformation = placeInformation;
         IsVisible = true;
     }
 
@@ -27,24 +27,24 @@ public class PlayerRoleBase
 
     public bool IsVisible { get; private set; }
 
-    public void Move(float deltaT)
+    public virtual void Move(float deltaT)
     {
         // Check if stack of moves is not empty
-        if (_currentMove == null && _futureMoves.Count > 0)
+        if (CurrentMove == null && FutureMoves.Count > 0)
         {
-            _currentMove = _futureMoves.Pop();
+            CurrentMove = FutureMoves.Pop();
         }
 
-        if (_currentMove != null)
+        if (CurrentMove != null)
         {
-            var result = _currentMove.Execute(deltaT, Position, IsVisible);
+            var result = CurrentMove.Execute(deltaT, Position, IsVisible);
             Position = result.Position;
 
             IsVisible = result.IsVisible;
 
             if (result.IsDone)
             {
-                _currentMove = null;
+                CurrentMove = null;
             }
 
             return;
@@ -65,7 +65,7 @@ public class PlayerRoleBase
 
         do
         {
-            var result = _levelInformation.PickPointOrPlace();
+            var result = LevelInformation.PickPointOrPlace();
             target = new Vector2(result.selectedPoint.X, result.selectedPoint.Y);
             selectedPlace = result.selectedPlace;
             x++;
@@ -74,18 +74,18 @@ public class PlayerRoleBase
         if (selectedPlace != null)
         {
             // Add invisiblity when entering into place.
-            _futureMoves.Push(new ExecuteAction(() => OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: true));
+            FutureMoves.Push(new ExecuteAction(() => OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: true));
 
             // Add idle move after moving
-            _futureMoves.Push(new Idle((float)new Random().NextDouble() * 10));
+            FutureMoves.Push(new Idle((float)new Random().NextDouble() * 10));
 
             // Add invisiblity when entering into place.
-            _futureMoves.Push(new ExecuteAction(() => OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: false));
+            FutureMoves.Push(new ExecuteAction(() => OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: false));
         }
         else
         {
             // Add idle move after moving
-            _futureMoves.Push(new Idle((float)new Random().NextDouble() * 10));
+            FutureMoves.Push(new Idle((float)new Random().NextDouble() * 10));
         }
 
         return target;
@@ -120,14 +120,14 @@ public class PlayerRoleBase
                     {
                         if (currentDirection != Vector2.Zero)
                         {
-                            _futureMoves.Push(new MoveTowardsPoint(direction: currentDirection, endPoint: endMove, speed: 100));
+                            FutureMoves.Push(new MoveTowardsPoint(direction: currentDirection, endPoint: endMove, speed: 100));
                         }
                         currentDirection = direction;
                         endMove = current;
                     }
                 } while (current != Position);
 
-                _futureMoves.Push(new MoveTowardsPoint(direction: currentDirection, endPoint: endMove, speed: 100));
+                FutureMoves.Push(new MoveTowardsPoint(direction: currentDirection, endPoint: endMove, speed: 100));
 
                 return;
             }
@@ -143,9 +143,9 @@ public class PlayerRoleBase
 
                     var neighbor = new Vector2(current.X + i, current.Y + j);
 
-                    if (neighbor.X < 0 || neighbor.X > _levelInformation.Size.X || 
-                        neighbor.Y < 0 || neighbor.Y > _levelInformation.Size.Y ||
-                        _levelInformation.InvalidPositions.Contains(neighbor))
+                    if (neighbor.X < 0 || neighbor.X > LevelInformation.Size.X || 
+                        neighbor.Y < 0 || neighbor.Y > LevelInformation.Size.Y ||
+                        LevelInformation.InvalidPositions.Contains(neighbor))
                     {
                         continue;
                     }
