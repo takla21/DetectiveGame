@@ -8,10 +8,8 @@ public sealed class Killer : PlayerRoleBase
     {
     }
 
-    public override void Move(float deltaT)
+    protected override void GenerateFutureMoves(LevelInformation levelInformation)
     {
-        // TODO add killer instinct.
-        
-        base.Move(deltaT);
+        throw new System.NotImplementedException();
     }
 }
