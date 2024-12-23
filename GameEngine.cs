@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using Detective.UI;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -18,11 +18,15 @@ public class GameEngine
         _players = new List<Player>();
         _playersKilled = new List<Player>();
         _levelTracker = new LevelTracker();
+
+        NotificationController = new NotificationController();
     }
 
     public IEnumerable<Place> Places => _places;
 
     public IEnumerable<Player> Players => _players;
+    
+    public NotificationController NotificationController { get; }
 
     public void Init()
     {
@@ -34,7 +38,7 @@ public class GameEngine
                     size: new Vector2(500, 400),
                     entrancePosition: new Vector2(250, 400)
                 ),
-                color: new Vector3(255, 0, 0)
+                color: new Vector3(1, 0, 0)
             )
         );
         _places.Add(
@@ -45,7 +49,7 @@ public class GameEngine
                     size: new Vector2(500, 400),
                     entrancePosition: new Vector2(1655, 400)
                 ),
-                color: new Vector3(0, 255, 0)
+                color: new Vector3(0, 1, 0)
             )
         );
         _places.Add(
@@ -56,7 +60,7 @@ public class GameEngine
                     size: new Vector2(500, 400),
                     entrancePosition: new Vector2(250, 660)
                 ),
-                color: new Vector3(0, 0, 255),
+                color: new Vector3(0, 0, 1),
                 isDarkTheme: true
             )
         );
@@ -68,7 +72,7 @@ public class GameEngine
                     size: new Vector2(500, 400),
                     entrancePosition: new Vector2(1655, 660)
                 ),
-                color: new Vector3(255, 160, 160),
+                color: new Vector3(179 / 255.0f, 179 / 255.0f, 179 / 255.0f),
                 isDarkTheme: false
             )
         );
@@ -114,7 +118,7 @@ public class GameEngine
 
         _playersKilled.Add(player);
 
-        Debug.WriteLine($"{player.Name} has been killed.");
+        NotificationController.Enqueue($"{player.Name} has been killed.", 5);
     }
 
     private void OnPlaceEntered(object sender, PlaceUpdateArgs e)
@@ -143,6 +147,8 @@ public class GameEngine
 
     public void Update(float deltaT)
     {
+        NotificationController.GetCurrentNotification(deltaT);
+
         foreach (var deadP in _playersKilled)
         {
             _players.Remove(deadP);

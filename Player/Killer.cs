@@ -72,10 +72,10 @@ public sealed class Killer : PlayerRoleBase
 
             switch (choice)
             {
-                default:
-                case 0:
+                case 0 when 10 - _timeInsideRemaining >= 0.1:
                     Leave();
                     break;
+                default:
                 case 1:
                     var timeToIdle = rand.NextDouble() * _timeInsideRemaining;
                     FutureMoves.Push(new Idle((float)timeToIdle));

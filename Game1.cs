@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -63,8 +62,9 @@ namespace Detective
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            _spriteBatch.Begin();            
+            _spriteBatch.Begin();
 
+            // Draw places
             foreach (var place in _engine.Places)
             {
                 var textColor = place.IsDarkTheme ? Color.White : Color.Black;
@@ -81,6 +81,8 @@ namespace Detective
                     pIndex++;
                 }
             }
+
+            // Draw players
             foreach (var player in _engine.Players)
             {
                 if (!player.IsVisible)
@@ -92,6 +94,23 @@ namespace Detective
 
                 var textPos = new System.Numerics.Vector2((player.Position.X - (player.Size * 0.5f)), (player.Position.Y + player.Size));
                 _spriteBatch.DrawString(_font, player.Name, textPos, Color.Black);
+            }
+
+            // Draw notifications
+            if (_engine.NotificationController.CurrentNotification is not null)
+            {
+                var notif = _engine.NotificationController.CurrentNotification;
+
+                Vector2 position = new Vector2(10, 10);
+                Color backgroundColor = Color.Black * 0.7f;
+                Color textColor = Color.White;
+
+                // Measure text size for background
+                Vector2 textSize = _font.MeasureString(notif.Message);
+                Rectangle backgroundRect = new Rectangle((int)position.X, (int)position.Y, (int)textSize.X + 20, (int)textSize.Y + 10);
+
+                _spriteBatch.Draw(_defaultTexture, backgroundRect, Color.White);
+                _spriteBatch.DrawString(_font, notif.Message, position + new Vector2(10, 5), textColor);
             }
 
             _spriteBatch.End();
