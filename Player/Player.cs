@@ -9,6 +9,7 @@ public class Player : IDisposable
 
     public Player(string name, int size)
     {
+        Id = Guid.NewGuid().ToString();
         Name = name;
         Size = size;
     }
@@ -33,6 +34,7 @@ public class Player : IDisposable
     {
         OnPlaceExited?.Invoke(this, e);
     }
+    public string Id { get; }
 
     public string Name { get; }
 
@@ -42,6 +44,7 @@ public class Player : IDisposable
 
     public event PlaceUpdateHandler OnPlaceEntered;
     public event PlaceUpdateHandler OnPlaceExited;
+    public event PlayerDeathEventHandler OnDeath;
 
     public int Size { get; }
 
@@ -50,9 +53,18 @@ public class Player : IDisposable
         _role.Move(deltaT);
     }
 
+    public void Die(PlaceInformation placeInformation)
+    {
+        OnDeath?.Invoke(this, new PlayerDeathEventArgs(placeInformation));
+    }
+
     public void Dispose()
     {
         _role.OnPlaceEntered -= InnerOnEnteredChanged;
         _role.OnPlaceExited -= InnerOnExitChanged;
     }
 }
+
+public delegate void PlayerDeathEventHandler(object sender,  PlayerDeathEventArgs e);
+
+public record PlayerDeathEventArgs(PlaceInformation Place);

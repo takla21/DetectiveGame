@@ -5,7 +5,7 @@ namespace Detective;
 
 public sealed class Innocent : PlayerRoleBase
 {
-    public Innocent(Vector2 position, LevelInformation placeInformation) : base(position, placeInformation)
+    public Innocent(string playerId, Vector2 position, LevelInformation placeInformation) : base(playerId, position, placeInformation)
     {
     }
 

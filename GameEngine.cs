@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -8,11 +9,15 @@ public class GameEngine
 {
     private readonly List<Place> _places;
     private readonly List<Player> _players;
+    private readonly List<Player> _playersKilled;
+    private readonly LevelTracker _levelTracker;
 
     public GameEngine()
     {
         _places = new List<Place>();
         _players = new List<Player>();
+        _playersKilled = new List<Player>();
+        _levelTracker = new LevelTracker();
     }
 
     public IEnumerable<Place> Places => _places;
@@ -73,18 +78,43 @@ public class GameEngine
             new Vector2(1920, 1080)
         );
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 10; i++)
         {
             var p = new Player("player" + (i + 1), 20);
-            var role = new Innocent(new Vector2(1000, 500), information);
+
+            PlayerRoleBase role;
+            if (i == 0)
+            {
+                role = new Killer(p.Id, new Vector2(1000, 500), information, _levelTracker);
+            }
+            else
+            {
+                role = new Innocent(p.Id, new Vector2(1000, 500), information);
+            }
 
             p.AssignRole(role);
 
             p.OnPlaceEntered += OnPlaceEntered;
             p.OnPlaceExited += OnPlaceExited;
-            
+            p.OnDeath += OnDeath;
+
             _players.Add(p);
         }
+    }
+
+    private void OnDeath(object sender, PlayerDeathEventArgs e)
+    {
+        var player = (Player)sender;
+
+        player.OnPlaceEntered -= OnPlaceEntered;
+        player.OnPlaceExited -= OnPlaceExited;
+        player.OnDeath -= OnDeath;
+
+        RemovePlayerFromPlace(player, e.Place);
+
+        _playersKilled.Add(player);
+
+        Debug.WriteLine($"{player.Name} has been killed.");
     }
 
     private void OnPlaceEntered(object sender, PlaceUpdateArgs e)
@@ -92,17 +122,35 @@ public class GameEngine
         var player = (Player)sender;
         var place = _places.First(x => x.Information == e.Place);
         place.AddPlayer(player);
+
+        _levelTracker.Update(e.Place, place.PlayersInside);
     }
 
     private void OnPlaceExited(object sender, PlaceUpdateArgs e)
     {
         var player = (Player)sender;
-        var place = _places.First(x => x.Information == e.Place);
+
+        RemovePlayerFromPlace(player, e.Place);
+    }
+
+    private void RemovePlayerFromPlace(Player player, PlaceInformation placeInformation)
+    {
+        var place = _places.First(x => x.Information == placeInformation);
         place.RemovePlayer(player);
+
+        _levelTracker.Update(placeInformation, place.PlayersInside);
     }
 
     public void Update(float deltaT)
     {
+        foreach (var deadP in _playersKilled)
+        {
+            _players.Remove(deadP);
+            deadP.Dispose();
+        }
+
+        _playersKilled.Clear();
+
         foreach (var p in _players)
         {
             p.Move(deltaT);

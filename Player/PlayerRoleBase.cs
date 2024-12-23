@@ -7,15 +7,14 @@ public abstract class PlayerRoleBase
 {
     private readonly LevelInformation _levelInformation;
 
+    protected string PlayerId;
+
     protected Stack<IMove> FutureMoves;
     protected IMove CurrentMove;
 
-    private int _id;
-    private static int _idGen = 0;
-
-    public PlayerRoleBase(Vector2 position, LevelInformation placeInformation)
+    public PlayerRoleBase(string playerId, Vector2 position, LevelInformation placeInformation)
     {
-        _id = _idGen++;
+        PlayerId = playerId;
         Position = position;
         FutureMoves = new Stack<IMove>();
         _levelInformation = placeInformation;
