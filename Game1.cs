@@ -109,7 +109,7 @@ namespace Detective
                 Vector2 textSize = _font.MeasureString(notif.Message);
                 Rectangle backgroundRect = new Rectangle((int)position.X, (int)position.Y, (int)textSize.X + 20, (int)textSize.Y + 10);
 
-                _spriteBatch.Draw(_defaultTexture, backgroundRect, Color.White);
+                _spriteBatch.Draw(_defaultTexture, backgroundRect, backgroundColor);
                 _spriteBatch.DrawString(_font, notif.Message, position + new Vector2(10, 5), textColor);
             }
 

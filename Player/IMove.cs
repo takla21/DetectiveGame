@@ -24,7 +24,7 @@ public class MoveTowardsPoint : IMove
     {
         _destination = endPoint;
 
-        _speed = new Vector2(direction.X * speed, direction.Y * speed);
+        _speed = direction * speed;
     }
 
     public MoveResult Execute(float deltaT, Vector2 currentPosition, bool isVisible)
