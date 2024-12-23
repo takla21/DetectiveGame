@@ -61,14 +61,11 @@ public abstract class PlayerRoleBase
         Vector2 target = default;
         var selectedPlace = default(PlaceInformation);
 
-        var x = 0;
-
         do
         {
             var result = LevelInformation.PickPointOrPlace();
             target = new Vector2(result.selectedPoint.X, result.selectedPoint.Y);
             selectedPlace = result.selectedPlace;
-            x++;
         } while (target == Position);
 
         if (selectedPlace != null)
