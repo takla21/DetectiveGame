@@ -1,3 +1,3 @@
 ﻿
-using var game = new Detective.Game1();
+using var game = new Detective.MainGame();
 game.Run();
