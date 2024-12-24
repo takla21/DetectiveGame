@@ -5,7 +5,6 @@ namespace Detective;
 
 public record MoveResult(bool IsDone, Vector2 Position, bool IsVisible)
 {
-
 }
 
 public interface IMove

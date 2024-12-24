@@ -12,8 +12,16 @@ public class GameEngine
     private readonly List<Player> _playersKilled;
     private readonly LevelTracker _levelTracker;
 
-    public GameEngine()
+    private readonly int _screenWidth;
+    private readonly int _screenHeight;
+
+    private const int PlayerSize = 20;
+
+    public GameEngine(int screenWidth, int screenHeight)
     {
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+
         _places = new List<Place>();
         _players = new List<Player>();
         _playersKilled = new List<Player>();
@@ -30,13 +38,15 @@ public class GameEngine
 
     public void Init()
     {
+        var placeSize = new Vector2(500, 400);
+
         _places.Add(
             new Place(
                 information: new PlaceInformation(
                     name: "Place 1",
                     position: new Vector2(0, 0),
-                    size: new Vector2(500, 400),
-                    entrancePosition: new Vector2(250, 400)
+                    size: placeSize,
+                    entrancePosition: new Vector2(250, placeSize.Y)
                 ),
                 color: new Vector3(1, 0, 0)
             )
@@ -45,9 +55,9 @@ public class GameEngine
             new Place(
                 information: new PlaceInformation(
                     name: "Place 2",
-                    position: new Vector2(1420, 0),
-                    size: new Vector2(500, 400),
-                    entrancePosition: new Vector2(1655, 400)
+                    position: new Vector2(_screenWidth - placeSize.X, 0),
+                    size: placeSize,
+                    entrancePosition: new Vector2((int)(_screenWidth - placeSize.X * 0.5), placeSize.Y)
                 ),
                 color: new Vector3(0, 1, 0)
             )
@@ -56,9 +66,9 @@ public class GameEngine
             new Place(
                 information: new PlaceInformation(
                     name: "Place 3",
-                    position: new Vector2(0, 680),
-                    size: new Vector2(500, 400),
-                    entrancePosition: new Vector2(250, 660)
+                    position: new Vector2(0, _screenHeight - placeSize.Y),
+                    size: placeSize,
+                    entrancePosition: new Vector2(250, _screenHeight - placeSize.Y - PlayerSize)
                 ),
                 color: new Vector3(0, 0, 1),
                 isDarkTheme: true
@@ -68,9 +78,9 @@ public class GameEngine
             new Place(
                 information: new PlaceInformation(
                     name: "Place 4",
-                    position: new Vector2(1420, 680),
-                    size: new Vector2(500, 400),
-                    entrancePosition: new Vector2(1655, 660)
+                    position: new Vector2(_screenWidth - placeSize.X, _screenHeight - placeSize.Y),
+                    size: placeSize,
+                    entrancePosition: new Vector2((int)(_screenWidth - placeSize.X * 0.5), _screenHeight - placeSize.Y - PlayerSize)
                 ),
                 color: new Vector3(179 / 255.0f, 179 / 255.0f, 179 / 255.0f),
                 isDarkTheme: false
@@ -79,12 +89,12 @@ public class GameEngine
 
         var information = new LevelInformation(
             _places.Select(x => x.Information),
-            new Vector2(1920, 1080)
+            new Vector2(_screenWidth, _screenHeight)
         );
 
         for (int i = 0; i < 10; i++)
         {
-            var p = new Player("player" + (i + 1), 20);
+            var p = new Player("player" + (i + 1), PlayerSize);
 
             PlayerRoleBase role;
             if (i == 0)
@@ -149,14 +159,15 @@ public class GameEngine
     {
         NotificationController.GetCurrentNotification(deltaT);
 
+        // Clean up dead players
         foreach (var deadP in _playersKilled)
         {
             _players.Remove(deadP);
             deadP.Dispose();
         }
-
         _playersKilled.Clear();
 
+        // Move alive players
         foreach (var p in _players)
         {
             p.Move(deltaT);

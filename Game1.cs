@@ -2,8 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace Detective
-{
+namespace Detective;
+
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
@@ -14,13 +14,16 @@ namespace Detective
 
         private SpriteFont _font;
 
+    private const int ScreenWidth = 1920;
+    private const int ScreenHeight = 1080;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            _engine = new GameEngine();
+        _engine = new GameEngine(ScreenWidth, ScreenHeight);
         }
 
         protected override void Initialize()
@@ -37,8 +40,8 @@ namespace Detective
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            _graphics.PreferredBackBufferWidth = 1920;
-            _graphics.PreferredBackBufferHeight = 1080;
+        _graphics.PreferredBackBufferWidth = ScreenWidth;
+        _graphics.PreferredBackBufferHeight = ScreenHeight;
             _graphics.ApplyChanges();
 
             _defaultTexture = new Texture2D(GraphicsDevice, 1, 1);
@@ -68,15 +71,15 @@ namespace Detective
             foreach (var place in _engine.Places)
             {
                 var textColor = place.IsDarkTheme ? Color.White : Color.Black;
-                _spriteBatch.Draw(_defaultTexture, new Rectangle(x: (int)place.Position.X, y: (int)place.Position.Y, width: (int)place.Size.X, height: (int)place.Size.Y), new Color(place.Color.X, place.Color.Y, place.Color.Z, 255));
+            _spriteBatch.Draw(_defaultTexture, new Rectangle(x: (int)place.Position.X, y: (int)place.Position.Y, width: (int)place.Size.X, height: (int)place.Size.Y), new Color(place.Color.X, place.Color.Y, place.Color.Z));
 
-                var textPos = new System.Numerics.Vector2((place.Position.X + (place.Size.X * 0.5f)), (place.Position.Y + (place.Size.Y * 0.5f)));
+            var textPos = new Vector2(place.Position.X + (place.Size.X * 0.5f), place.Position.Y + (place.Size.Y * 0.5f));
                 _spriteBatch.DrawString(_font, place.Name, textPos, textColor);
 
                 var pIndex = 0;
                 foreach (var player in place.PlayersInside)
                 {
-                    var playerNameTextPos = new System.Numerics.Vector2(place.Position.X + 50, place.Position.Y + 50 + pIndex * 13);
+                var playerNameTextPos = new Vector2(place.Position.X + 50, place.Position.Y + 50 + pIndex * 13);
                     _spriteBatch.DrawString(_font, player.Name, playerNameTextPos, textColor);
                     pIndex++;
                 }
@@ -118,4 +121,3 @@ namespace Detective
             base.Draw(gameTime);
         }
     }
-}

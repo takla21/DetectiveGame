@@ -16,8 +16,8 @@ public sealed class Innocent : PlayerRoleBase
         var moves = AStar.GenerateMoves(
             startPoint: Position,
             target: target,
-            levelWidth: (int)levelInformation.Size.X,
-            levelHeight: (int)levelInformation.Size.Y,
+            levelWidth: (int)levelInformation.LevelSize.X,
+            levelHeight: (int)levelInformation.LevelSize.Y,
             invalidPoints: levelInformation.InvalidPositions
         );
 

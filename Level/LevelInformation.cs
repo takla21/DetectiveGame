@@ -9,11 +9,11 @@ public record LevelInformation
 {
     private readonly int _placesCount;
 
-    public LevelInformation(IEnumerable<PlaceInformation> placeInformation, Vector2 size)
+    public LevelInformation(IEnumerable<PlaceInformation> placeInformation, Vector2 levelSize)
     {
         PlacesInformation = placeInformation;
         _placesCount = placeInformation.ToArray().Length;
-        Size = size;
+        LevelSize = levelSize;
         InvalidPositions = GenerateInvalidPositions(placeInformation);
     }
 
@@ -37,7 +37,7 @@ public record LevelInformation
 
     public IEnumerable<PlaceInformation> PlacesInformation { get; init; }
 
-    public Vector2 Size { get; init; }
+    public Vector2 LevelSize { get; init; }
 
     public ISet<Vector2> InvalidPositions { get; init; }
 
@@ -50,7 +50,7 @@ public record LevelInformation
             var selectedPoint = default(Vector2);
             do
             {
-                selectedPoint = new Vector2(rand.Next((int)Size.X), rand.Next((int)Size.Y));
+                selectedPoint = new Vector2(rand.Next((int)LevelSize.X), rand.Next((int)LevelSize.Y));
             } while (InvalidPositions.Contains(selectedPoint));
 
             return (selectedPoint, selectedPlace: null);

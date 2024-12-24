@@ -7,7 +7,7 @@ public abstract class PlayerRoleBase
 {
     private readonly LevelInformation _levelInformation;
 
-    protected string PlayerId;
+    protected readonly string PlayerId;
 
     protected Stack<IMove> FutureMoves;
     protected IMove CurrentMove;
@@ -16,8 +16,8 @@ public abstract class PlayerRoleBase
     {
         PlayerId = playerId;
         Position = position;
-        FutureMoves = new Stack<IMove>();
         _levelInformation = placeInformation;
+        FutureMoves = new Stack<IMove>();
         IsVisible = true;
     }
 
