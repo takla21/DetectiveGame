@@ -44,21 +44,36 @@ public record LevelInformation
     public (Vector2 selectedPoint, PlaceInformation selectedPlace) PickPointOrPlace()
     {
         var rand = new Random();
-        var draw = rand.Next(_placesCount * 2);
-        if (draw >= _placesCount)
+        var draw = rand.Next(2);
+        if (draw == 1)
         {
-            var selectedPoint = default(Vector2);
-            do
-            {
-                selectedPoint = new Vector2(rand.Next((int)LevelSize.X), rand.Next((int)LevelSize.Y));
-            } while (InvalidPositions.Contains(selectedPoint));
-
-            return (selectedPoint, selectedPlace: null);
+            var selectedPlace = PickPlace(rand);
+            return (selectedPlace.EntrancePosition, selectedPlace);
         }
         else
         {
-            var place = PlacesInformation.ToArray()[draw];
-            return (selectedPoint: place.EntrancePosition, selectedPlace: place);
+            var selectedPoint = PickPointInLevel(rand);
+            return (selectedPoint, selectedPlace: null);
         }
+    }
+
+    public Vector2 PickPointInLevel(Random random = null)
+    {
+        var rand = random ?? new Random();
+        var selectedPoint = default(Vector2);
+        do
+        {
+            selectedPoint = new Vector2(rand.Next((int)LevelSize.X), rand.Next((int)LevelSize.Y));
+        } while (InvalidPositions.Contains(selectedPoint));
+
+        return selectedPoint;
+    }
+
+    public PlaceInformation PickPlace(Random random = null)
+    {
+        var rand = random ?? new Random();
+        var draw = rand.Next(_placesCount);
+        var place = PlacesInformation.ToArray()[draw];
+        return place;
     }
 }
