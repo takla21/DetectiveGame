@@ -9,8 +9,11 @@ namespace Detective.Screens;
 
 public sealed class GameScreen : IScreen
 {
+    private const int Clock_Speed = 100;
+
     private readonly NavigationController _navigationController;
     private readonly GameEngine _engine;
+    private readonly Clock _clock;
 
     private readonly int _screenWidth;
     private readonly int _screenHeight;
@@ -26,6 +29,7 @@ public sealed class GameScreen : IScreen
         _navigationController = navigationController;
 
         _engine = new GameEngine(screenWidth, screenHeight);
+        _clock = new Clock();
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -50,9 +54,11 @@ public sealed class GameScreen : IScreen
 
     public void Update(float deltaT, MouseState mouseState)
     {
+        _clock.Update(Clock_Speed * deltaT);
+
         _engine.Update(deltaT);
 
-        _hub.Update(mouseState);
+        _hub.Update(mouseState, _clock.Day, _clock.FormattedTime);
     }
 
     public void Draw(SpriteBatch spriteBatch)

@@ -11,8 +11,12 @@ public class Hub : IDisposable
     private readonly Vector2 _position;
     private readonly Vector2 _size;
     private readonly Color _color;
+    private readonly SpriteFont _spriteFont;
 
     private Button _expandBtn;
+
+    private string _day;
+    private string _time;
 
     public Hub(Texture2D defaultTexture, Vector2 position, Vector2 size, Color color, SpriteFont spriteFont)
     {
@@ -20,6 +24,10 @@ public class Hub : IDisposable
         _position = position;
         _size = size;
         _color = color;
+        _spriteFont = spriteFont;
+
+        _day = "Day 0";
+        _time = "00:00";
 
         LoadElement(spriteFont);
     }
@@ -39,14 +47,22 @@ public class Hub : IDisposable
 
     public event Action OnExpand;
 
-    public void Update(MouseState mouseState)
+    public void Update(MouseState mouseState, int currentDay, string time)
     {
         _expandBtn.Update(mouseState);
+
+        _day = string.Format("Day {0}", currentDay);
+        _time = time;
     }
 
     public void Draw(SpriteBatch spriteBatch)
-    {
+    {        
         spriteBatch.Draw(_defaultTexture, new Rectangle(x: (int)_position.X, y: (int)_position.Y, width: (int)_size.X, height: (int)_size.Y), _color);
+
+        spriteBatch.DrawString(_spriteFont, _day, new Vector2((int)_position.X, 0), Color.White);
+        Vector2 textSize = _spriteFont.MeasureString(_day);
+
+        spriteBatch.DrawString(_spriteFont, _time, new Vector2(_position.X + textSize.X + 10, 0), Color.White);
 
         _expandBtn.Draw(spriteBatch);
     }
