@@ -1,4 +1,5 @@
 ﻿using Detective.Navigation;
+using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,11 +12,17 @@ public sealed class GameScreen : IScreen
     private readonly NavigationController _navigationController;
     private readonly GameEngine _engine;
 
+    private readonly int _screenWidth;
+    private readonly int _screenHeight;
+
     private Texture2D _defaultTexture;
     private SpriteFont _font;
+    private Hub _hub;
 
     public GameScreen(int screenWidth, int screenHeight, NavigationController navigationController)
     {
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
         _navigationController = navigationController;
 
         _engine = new GameEngine(screenWidth, screenHeight);
@@ -28,12 +35,24 @@ public sealed class GameScreen : IScreen
         _defaultTexture = new Texture2D(graphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
+        _hub = new Hub(_defaultTexture, new Vector2(_screenWidth * 0.33f, 0), new Vector2(_screenWidth * 0.33f, 50), new Color(new Vector4(0.25f, 0.25f, 0.25f, 0.75f)), _font);
+
+        _hub.OnExpand -= OnExpand;
+        _hub.OnExpand += OnExpand;
+
         _engine.Init();
+    }
+
+    private void OnExpand()
+    {
+        // TODO: Open modal with information
     }
 
     public void Update(float deltaT, MouseState mouseState)
     {
         _engine.Update(deltaT);
+
+        _hub.Update(mouseState);
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -86,10 +105,13 @@ public sealed class GameScreen : IScreen
             spriteBatch.Draw(_defaultTexture, backgroundRect, backgroundColor);
             spriteBatch.DrawString(_font, notif.Message, position + new Vector2(10, 5), textColor);
         }
+
+        _hub.Draw(spriteBatch);
     }
 
     public void Dispose()
     {
+        _hub.OnExpand -= OnExpand;
         _engine.Dispose();
     }
 }
