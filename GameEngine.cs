@@ -1,11 +1,12 @@
 ﻿using Detective.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
 namespace Detective;
 
-public class GameEngine
+public class GameEngine : IDisposable
 {
     private readonly List<Place> _places;
     private readonly List<Player> _players;
@@ -171,6 +172,18 @@ public class GameEngine
         foreach (var p in _players)
         {
             p.Move(deltaT);
+        }
+    }
+
+    public void Dispose()
+    {
+        foreach (var player in _players)
+        {
+            player.OnPlaceEntered -= OnPlaceEntered;
+            player.OnPlaceExited -= OnPlaceExited;
+            player.OnDeath -= OnDeath;
+
+            player.Dispose();
         }
     }
 }

@@ -90,6 +90,6 @@ public sealed class GameScreen : IScreen
 
     public void Dispose()
     {
-        return;
+        _engine.Dispose();
     }
 }
