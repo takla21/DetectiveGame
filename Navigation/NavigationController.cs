@@ -151,4 +151,16 @@ public class NavigationController
         // We cannot manipulate stacks here, since it's still being executed in the update method. Maybe I could use multi-threading in the future.
         _modalStackOperations.Enqueue((NavigationOperation.Remove, null));
     }
+
+    public void NavigateBackOrDismissModal()
+    {
+        if (ModalStack.Count > 1)
+        {
+            DismissModal();
+        }
+        else
+        {
+            NavigateBack();
+        }
+    }
 }

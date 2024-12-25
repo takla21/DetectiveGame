@@ -51,13 +51,26 @@ public class MainGame : Game
     protected override void Update(GameTime gameTime)
     {
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-            Exit();
+        {
+            OnEscapeClicked();
+        }
 
         var mouseState = Mouse.GetState();
 
         _navigationController.Update(gameTime.ElapsedGameTime.Milliseconds * 0.001f, mouseState);
 
         base.Update(gameTime);
+    }
+
+    private void OnEscapeClicked()
+    {
+        if (_navigationController.NavigationStack.Count > 1 || _navigationController.ModalStack.Count > 1)
+        {
+            _navigationController.NavigateBackOrDismissModal();
+            return;
+        }
+
+        Exit();
     }
 
     protected override void Draw(GameTime gameTime)
