@@ -7,10 +7,10 @@ public class Player : IDisposable
 {
     private PlayerRoleBase _role;
 
-    public Player(string name, int size)
+    public Player(PlayerProfile profile, int size)
     {
         Id = Guid.NewGuid().ToString();
-        Name = name;
+        Profile = profile;
         Size = size;
     }
 
@@ -36,7 +36,11 @@ public class Player : IDisposable
     }
     public string Id { get; }
 
-    public string Name { get; }
+    public PlayerProfile Profile { get; }
+
+    public string Name => Profile.Name;
+
+    public int Age => Profile.Age;
 
     public Vector2 Position => _role.Position;
 
@@ -65,6 +69,9 @@ public class Player : IDisposable
     }
 }
 
-public delegate void PlayerDeathEventHandler(object sender,  PlayerDeathEventArgs e);
+public record PlayerProfile(string Name, int Age);
+
+
+public delegate void PlayerDeathEventHandler(object sender, PlayerDeathEventArgs e);
 
 public record PlayerDeathEventArgs(PlaceInformation Place);

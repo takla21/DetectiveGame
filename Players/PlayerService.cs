@@ -1,6 +1,7 @@
 ﻿using Detective.Level;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 
@@ -11,7 +12,8 @@ public interface IPlayerService : IDisposable
     public IEnumerable<Player> Players { get; }
 
     public event PlayerDeathEventHandler OnDeath;
-    public void Initialize(int playerCount);
+
+    public void Initialize(int playerCount, string pathToNames);
 
     public void Update();
 }
@@ -36,15 +38,30 @@ public class PlayerService : IPlayerService
 
     public event PlayerDeathEventHandler OnDeath;
 
-    public void Initialize(int playerCount)
+    public void Initialize(int playerCount, string pathToNames)
     {
         var random = new Random();
 
         var killer = random.Next(playerCount);
 
+        var availableNames = Array.Empty<string>();
+        using (var stream = Microsoft.Xna.Framework.TitleContainer.OpenStream(pathToNames))
+        {
+            using (var reader = new StreamReader(stream))
+            {
+                availableNames = reader.ReadToEnd().Split("\r\n");
+            }
+        }
+
         for (int i = 0; i < playerCount; i++)
         {
-            var p = new Player("player" + (i + 1), PlayerSize);
+            var p = new Player(
+                new PlayerProfile(
+                    availableNames[random.Next(availableNames.Length)],
+                    random.Next(18, 99)
+                ), 
+                PlayerSize
+            );
 
             PlayerRoleBase role;
             if (i == killer)

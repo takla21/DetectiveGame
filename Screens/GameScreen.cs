@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.IO;
 
 namespace Detective.Screens;
 
@@ -44,7 +45,7 @@ public sealed class GameScreen : IScreen
         _hub.OnExpand -= OnExpand;
         _hub.OnExpand += OnExpand;
 
-        _engine.Init();
+        _engine.Init(content);
     }
 
     private void OnExpand()

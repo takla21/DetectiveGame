@@ -1,13 +1,17 @@
 ﻿using Detective.Level;
 using Detective.Players;
 using Detective.UI;
+using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Detective;
 
 public class GameEngine : IDisposable
 {
+    private const string NameFilesName = "../names.txt";
+
     private readonly IPlayerService _playerService;
     private readonly ILevelService _levelService;
 
@@ -27,11 +31,12 @@ public class GameEngine : IDisposable
 
     public NotificationController NotificationController { get; }
 
-    public void Init()
+    public void Init(ContentManager content)
     {
         _levelService.Initialize();
 
-        _playerService.Initialize(playerCount: 10);
+        var filePath = Path.Combine(content.RootDirectory, NameFilesName);
+        _playerService.Initialize(playerCount: 10, filePath);
     }
 
     private void OnDeath(object sender, PlayerDeathEventArgs e)
