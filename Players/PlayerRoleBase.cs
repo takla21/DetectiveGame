@@ -1,22 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Numerics;
 
-namespace Detective;
+namespace Detective.Players;
 
 public abstract class PlayerRoleBase
 {
-    private readonly LevelInformation _levelInformation;
-
     protected readonly string PlayerId;
 
     protected Stack<IMove> FutureMoves;
     protected IMove CurrentMove;
 
-    public PlayerRoleBase(string playerId, Vector2 position, LevelInformation placeInformation)
+    public PlayerRoleBase(string playerId, Vector2 position)
     {
         PlayerId = playerId;
         Position = position;
-        _levelInformation = placeInformation;
+
         FutureMoves = new Stack<IMove>();
         IsVisible = true;
     }
@@ -25,7 +23,7 @@ public abstract class PlayerRoleBase
 
     public bool IsVisible { get; private set; }
 
-    protected abstract void GenerateFutureMoves(LevelInformation levelInformation);
+    protected abstract void GenerateFutureMoves();
 
     public virtual void Move(float deltaT)
     {
@@ -51,7 +49,7 @@ public abstract class PlayerRoleBase
         }
 
         // If empty, it's time to generate future moves
-        GenerateFutureMoves(_levelInformation);
+        GenerateFutureMoves();
     }
 
     protected void EnterPlace(PlaceInformation place)

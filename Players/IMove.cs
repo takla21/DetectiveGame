@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace Detective;
+namespace Detective.Players;
 
 public record MoveResult(bool IsDone, Vector2 Position, bool IsVisible)
 {

@@ -1,24 +1,28 @@
-﻿using System;
+﻿using Detective.Level;
+using System;
 using System.Numerics;
 
-namespace Detective;
+namespace Detective.Players;
 
 public sealed class Innocent : PlayerRoleBase
 {
-    public Innocent(string playerId, Vector2 position, LevelInformation placeInformation) : base(playerId, position, placeInformation)
+    private readonly ILevelService _levelService;
+
+    public Innocent(string playerId, Vector2 position, ILevelService levelService) : base(playerId, position)
     {
+        _levelService = levelService;
     }
 
-    protected override void GenerateFutureMoves(LevelInformation levelInformation)
+    protected override void GenerateFutureMoves()
     {
-        Vector2 target = GenerateTarget(levelInformation);
+        Vector2 target = GenerateTarget();
 
         var moves = AStar.GenerateMoves(
             startPoint: Position,
             target: target,
-            levelWidth: (int)levelInformation.LevelSize.X,
-            levelHeight: (int)levelInformation.LevelSize.Y,
-            invalidPoints: levelInformation.InvalidPositions
+            levelWidth: (int)_levelService.Information.LevelSize.X,
+            levelHeight: (int)_levelService.Information.LevelSize.Y,
+            invalidPoints: _levelService.Information.InvalidPositions
         );
 
         foreach (var move in moves)
@@ -27,16 +31,16 @@ public sealed class Innocent : PlayerRoleBase
         }
     }
 
-    private Vector2 GenerateTarget(LevelInformation levelInformation)
+    private Vector2 GenerateTarget()
     {
         Vector2 target = default;
         var selectedPlace = default(PlaceInformation);
 
         do
         {
-            var result = levelInformation.PickPointOrPlace();
-            target = new Vector2(result.selectedPoint.X, result.selectedPoint.Y);
-            selectedPlace = result.selectedPlace;
+            var result = _levelService.PickPointOrPlace();
+            target = result.SelectedPoint;
+            selectedPlace = result.SelectedPlace;
         } while (target == Position);
 
         if (selectedPlace != null)

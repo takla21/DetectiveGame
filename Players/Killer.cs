@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Detective.Level;
+using System;
 using System.Linq;
 using System.Numerics;
 
-namespace Detective;
+namespace Detective.Players;
 
 public sealed class Killer : PlayerRoleBase
 {
-    private readonly LevelTracker _levelTracker;
+    private readonly ILevelService _levelService;
     private readonly Random _random;
 
     private PlaceInformation _currentPlace;
@@ -14,27 +15,27 @@ public sealed class Killer : PlayerRoleBase
 
     private KillerState _currentState;
 
-    public Killer(string playerId, Vector2 position, LevelInformation placeInformation, LevelTracker levelTracker) : base(playerId, position, placeInformation)
+    public Killer(string playerId, Vector2 position, ILevelService levelService) : base(playerId, position)
     {
-        _levelTracker = levelTracker;
+        _levelService = levelService;
         _timeInsideRemaining = 0;
         _currentState = KillerState.Calm;
         _random = new Random();
     }
 
-    protected override void GenerateFutureMoves(LevelInformation levelInformation)
+    protected override void GenerateFutureMoves()
     {
         switch (_currentState)
         {
             default:
             case KillerState.Calm:
-                InnerGenerateMove(levelInformation);
+                InnerGenerateMove();
 
                 var choice = _random.Next(3);
                 _currentState = choice == 1 ? KillerState.Hunting : KillerState.Calm;
                 break;
             case KillerState.Hunting:
-                var result = InnerGenerateMove(levelInformation, mustGoToPlace: true, isReadyToKill: true);
+                var result = InnerGenerateMove(mustGoToPlace: true, isReadyToKill: true);
 
                 if (result == ActionTaken.ExitPlace)
                 {
@@ -42,18 +43,18 @@ public sealed class Killer : PlayerRoleBase
                 }
                 break;
             case KillerState.Cooldown:
-                InnerGenerateMove(levelInformation);
+                InnerGenerateMove();
 
                 _currentState = KillerState.Calm;
                 break;
         }
     }
 
-    private ActionTaken InnerGenerateMove(LevelInformation levelInformation, bool mustGoToPlace = false, bool isReadyToKill = false)
+    private ActionTaken InnerGenerateMove(bool mustGoToPlace = false, bool isReadyToKill = false)
     {
         if (IsVisible)
         {
-            return GenerateMoveWhileBeingVisible(levelInformation, mustGoToPlace);
+            return GenerateMoveWhileBeingVisible(mustGoToPlace);
         }
 
         // If stayed more than time limit, force leave.
@@ -66,8 +67,8 @@ public sealed class Killer : PlayerRoleBase
 
         if (isReadyToKill)
         {
-            var playersInPlace = _levelTracker
-                .GetPlayersFromPlace(_currentPlace)
+            var playersInPlace = _levelService
+                .PlacesOccupancy[_currentPlace]
                 .Where(x => x.Id != PlayerId)
                 .ToArray();
 
@@ -114,7 +115,7 @@ public sealed class Killer : PlayerRoleBase
         }
     }
 
-    private ActionTaken GenerateMoveWhileBeingVisible(LevelInformation levelInformation, bool mustGoToPlace)
+    private ActionTaken GenerateMoveWhileBeingVisible(bool mustGoToPlace)
     {
         ActionTaken action;
         Vector2 target = default;
@@ -123,14 +124,14 @@ public sealed class Killer : PlayerRoleBase
         {
             if (mustGoToPlace)
             {
-                selectedPlace = levelInformation.PickPlace();
+                selectedPlace = _levelService.PickPlace();
                 target = selectedPlace.EntrancePosition;
             }
             else
             {
-                var result = levelInformation.PickPointOrPlace();
-                target = new Vector2(result.selectedPoint.X, result.selectedPoint.Y);
-                selectedPlace = result.selectedPlace;
+                var result = _levelService.PickPointOrPlace();
+                target = result.SelectedPoint;
+                selectedPlace = result.SelectedPlace;
             }
         } while (target == Position);
 
@@ -156,9 +157,9 @@ public sealed class Killer : PlayerRoleBase
         var moves = AStar.GenerateMoves(
             startPoint: Position,
             target: target,
-            levelWidth: (int)levelInformation.LevelSize.X,
-            levelHeight: (int)levelInformation.LevelSize.Y,
-            invalidPoints: levelInformation.InvalidPositions
+            levelWidth: (int)_levelService.Information.LevelSize.X,
+            levelHeight: (int)_levelService.Information.LevelSize.Y,
+            invalidPoints: _levelService.Information.InvalidPositions
         );
 
         foreach (var move in moves)
