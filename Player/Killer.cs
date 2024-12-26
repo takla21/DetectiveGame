@@ -30,8 +30,8 @@ public sealed class Killer : PlayerRoleBase
             case KillerState.Calm:
                 InnerGenerateMove(levelInformation);
 
-                var choice = _random.Next(2);
-                _currentState = choice == 2 ? KillerState.Hunting : KillerState.Calm;
+                var choice = _random.Next(3);
+                _currentState = choice == 1 ? KillerState.Hunting : KillerState.Calm;
                 break;
             case KillerState.Hunting:
                 var result = InnerGenerateMove(levelInformation, mustGoToPlace: true, isReadyToKill: true);
