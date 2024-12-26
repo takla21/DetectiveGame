@@ -47,7 +47,7 @@ public class LevelService : ILevelService
         _places.Add(
             new Place(
                 information: new PlaceInformation(
-                    name: "Place 1",
+                    type: PlaceType.Houses,
                     position: new Vector2(0, 0),
                     size: placeSize,
                     entrancePosition: new Vector2(250, placeSize.Y)
@@ -81,7 +81,7 @@ public class LevelService : ILevelService
         _places.Add(
             new Place(
                 information: new PlaceInformation(
-                    name: "Place 4",
+                    type: PlaceType.Prison,
                     position: new Vector2(_width - placeSize.X, _height - placeSize.Y),
                     size: placeSize,
                     entrancePosition: new Vector2((int)(_width - placeSize.X * 0.5), _height - placeSize.Y - 20) // playerSize
