@@ -40,7 +40,7 @@ public class PlayerService : IPlayerService
 
     public void Initialize(int playerCount, string pathToNames)
     {
-        var random = new Random();
+        var random = Globals.Random;
 
         var killer = random.Next(playerCount);
 

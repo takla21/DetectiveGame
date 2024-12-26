@@ -106,7 +106,7 @@ public class LevelService : ILevelService
 
     public LevelChoice PickPointOrPlace()
     {
-        var rand = new Random();
+        var rand = Globals.Random;
         var draw = rand.Next(2);
         if (draw == 1)
         {
@@ -122,7 +122,7 @@ public class LevelService : ILevelService
 
     public Vector2 PickPointInLevel(Random random = null)
     {
-        var rand = random ?? new Random();
+        var rand = random ?? Globals.Random;
         var selectedPoint = default(Vector2);
         do
         {
@@ -134,7 +134,7 @@ public class LevelService : ILevelService
 
     public PlaceInformation PickPlace(Random random = null)
     {
-        var rand = random ?? new Random();
+        var rand = random ?? Globals.Random;
         var draw = rand.Next(_places.Count);
         var place = _places[draw];
         return place.Information;

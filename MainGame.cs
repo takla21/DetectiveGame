@@ -13,6 +13,7 @@ public class MainGame : Game
 
     private SpriteBatch _spriteBatch;
     private Texture2D _defaultTexture;
+    private SpriteFont _debugFont;
 
     private const int ScreenWidth = 1920;
     private const int ScreenHeight = 1080;
@@ -46,6 +47,8 @@ public class MainGame : Game
 
         _navigationController.Load(Content, GraphicsDevice);
         _navigationController.NavigateTo(new MenuScreen(ScreenWidth, ScreenHeight, _navigationController));
+
+        _debugFont = Content.Load<SpriteFont>("default");
     }
 
     protected override void Update(GameTime gameTime)
@@ -80,6 +83,8 @@ public class MainGame : Game
         _spriteBatch.Begin();
 
         _navigationController.Draw(_spriteBatch);
+
+        _spriteBatch.DrawString(_debugFont, Globals.RandomFactory.Seed.ToString(), new Vector2(0,0), Color.Black);
 
         _spriteBatch.End();
 

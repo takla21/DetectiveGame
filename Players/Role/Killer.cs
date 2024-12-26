@@ -20,7 +20,7 @@ public sealed class Killer : PlayerRoleBase
         _levelService = levelService;
         _timeInsideRemaining = 0;
         _currentState = KillerState.Calm;
-        _random = new Random();
+        _random = Globals.Random;
     }
 
     protected override void GenerateFutureMoves()
@@ -145,7 +145,7 @@ public sealed class Killer : PlayerRoleBase
             action = ActionTaken.MoveToPoint;
 
             // Add idle move after moving
-            FutureMoves.Push(new Idle((float)new Random().NextDouble() * 10));
+            FutureMoves.Push(new Idle((float)Globals.RandomFactory.Random.NextDouble() * 10));
         }
         else
         {

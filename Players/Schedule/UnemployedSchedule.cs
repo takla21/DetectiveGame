@@ -37,7 +37,7 @@ public class UnemployedSchedule : IPlayerSchedule
             moves.Add(new ExecuteAction(() => OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: true));
 
             // Add idle move after moving
-            moves.Add(new Idle((float)new Random().NextDouble() * 10));
+            moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
 
             // Add invisiblity when entering into place.
             moves.Add(new ExecuteAction(() => OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(selectedPlace)), shouldBeVisible: false));
@@ -45,7 +45,7 @@ public class UnemployedSchedule : IPlayerSchedule
         else
         {
             // Add idle move after moving
-            moves.Add(new Idle((float)new Random().NextDouble() * 10));
+            moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
         }
 
         moves.AddRange(
