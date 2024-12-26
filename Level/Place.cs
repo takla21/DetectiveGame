@@ -1,4 +1,5 @@
-﻿using Detective.Players;
+﻿using Detective.Level;
+using Detective.Players;
 using System.Collections.Generic;
 using System.Numerics;
 

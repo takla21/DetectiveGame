@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Detective.Level;
+using System;
 using System.Numerics;
 
 namespace Detective.Players;
@@ -66,6 +67,7 @@ public class Player : IDisposable
     {
         _role.OnPlaceEntered -= InnerOnEnteredChanged;
         _role.OnPlaceExited -= InnerOnExitChanged;
+        _role.Dispose();
     }
 }
 

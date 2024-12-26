@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Detective.Level;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Detective;

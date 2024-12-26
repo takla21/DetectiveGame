@@ -15,7 +15,7 @@ public sealed class Killer : PlayerRoleBase
 
     private KillerState _currentState;
 
-    public Killer(string playerId, Vector2 position, ILevelService levelService) : base(playerId, position)
+    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule) : base(playerId, position, schedule)
     {
         _levelService = levelService;
         _timeInsideRemaining = 0;
@@ -29,7 +29,12 @@ public sealed class Killer : PlayerRoleBase
         {
             default:
             case KillerState.Calm:
-                InnerGenerateMove();
+                var moves = Schedule.GenerateMoves(Position);
+
+                foreach (var move in moves)
+                {
+                    FutureMoves.Push(move);
+                }
 
                 var choice = _random.Next(3);
                 _currentState = choice == 1 ? KillerState.Hunting : KillerState.Calm;

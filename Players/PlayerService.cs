@@ -64,13 +64,16 @@ public class PlayerService : IPlayerService
             );
 
             PlayerRoleBase role;
+
+            var schedule = new UnemployedSchedule(_levelService);
+
             if (i == killer)
             {
-                role = new Killer(p.Id, new Vector2(1000, 500), _levelService);
+                role = new Killer(p.Id, new Vector2(1000, 500), _levelService, schedule);
             }
             else
             {
-                role = new Innocent(p.Id, new Vector2(1000, 500), _levelService);
+                role = new Innocent(p.Id, new Vector2(1000, 500), schedule);
             }
 
             p.OnPlaceEntered += OnPlaceEntered;
