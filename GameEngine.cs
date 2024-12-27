@@ -11,6 +11,7 @@ namespace Detective;
 public class GameEngine : IDisposable
 {
     private const string NameFilesName = "../names.txt";
+    private const int PlayerSize = 20;
 
     private readonly IPlayerService _playerService;
     private readonly ILevelService _levelService;
@@ -19,7 +20,7 @@ public class GameEngine : IDisposable
     {
         NotificationController = new NotificationController();
         _levelService = new LevelService(screenWidth, screenHeight);
-        _playerService = new PlayerService(_levelService);
+        _playerService = new PlayerService(_levelService, PlayerSize);
 
         _playerService.OnDeath -= OnDeath;
         _playerService.OnDeath += OnDeath;
@@ -33,7 +34,7 @@ public class GameEngine : IDisposable
 
     public void Init(ContentManager content, Clock clock)
     {
-        _levelService.Initialize();
+        _levelService.Initialize(PlayerSize);
 
         var filePath = Path.Combine(content.RootDirectory, NameFilesName);
         _playerService.Initialize(playerCount: 10, filePath, clock);
@@ -50,13 +51,7 @@ public class GameEngine : IDisposable
     {
         NotificationController.GetCurrentNotification(deltaT);
 
-        _playerService.Update();
-
-        // Move alive players
-        foreach (var p in _playerService.Players)
-        {
-            p.Move(deltaT);
-        }
+        _playerService.Update(deltaT);
     }
 
     public void Dispose()

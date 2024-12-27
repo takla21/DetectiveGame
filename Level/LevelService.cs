@@ -14,7 +14,7 @@ public interface ILevelService
 
     public LevelInformation Information { get; }
 
-    public void Initialize();
+    public void Initialize(int playerSize);
 
     public LevelChoice PickPointOrPlace();
 
@@ -44,7 +44,7 @@ public class LevelService : ILevelService
         _places = new List<Place>();
     }
 
-    public void Initialize()
+    public void Initialize(int playerSize)
     {
         var placeSize = new Vector2(500, 400);
 
@@ -76,7 +76,7 @@ public class LevelService : ILevelService
                     name: "Place 3",
                     position: new Vector2(0, _height - placeSize.Y),
                     size: placeSize,
-                    entrancePosition: new Vector2(250, _height - placeSize.Y - 20) // playerSize
+                    entrancePosition: new Vector2(250, _height - placeSize.Y - playerSize)
                 ),
                 color: new Vector3(0, 0, 1),
                 isDarkTheme: true
@@ -88,7 +88,7 @@ public class LevelService : ILevelService
                     type: PlaceType.Prison,
                     position: new Vector2(_width - placeSize.X, _height - placeSize.Y),
                     size: placeSize,
-                    entrancePosition: new Vector2((int)(_width - placeSize.X * 0.5), _height - placeSize.Y - 20) // playerSize
+                    entrancePosition: new Vector2((int)(_width - placeSize.X * 0.5), _height - placeSize.Y - playerSize)
                 ),
                 color: new Vector3(179 / 255.0f, 179 / 255.0f, 179 / 255.0f),
                 isDarkTheme: false
@@ -97,7 +97,8 @@ public class LevelService : ILevelService
 
         Information = new LevelInformation(
             _places.Select(x => x.Information),
-            new Vector2(_width, _height)
+            new Vector2(_width, _height),
+            playerSize
         );
     }
 

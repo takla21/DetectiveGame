@@ -1,9 +1,7 @@
 ﻿using Detective.Level;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 
 namespace Detective.Players;
@@ -16,21 +14,22 @@ public interface IPlayerService : IDisposable
 
     public void Initialize(int playerCount, string pathToNames, Clock clock);
 
-    public void Update();
+    public void Update(float deltaT);
 }
 
 public class PlayerService : IPlayerService
 {
-    private const int PlayerSize = 20;
-
     private readonly ILevelService _levelService;
     private readonly List<Player> _players;
     private readonly List<Player> _playersKilled;
 
-    public PlayerService(ILevelService levelService)
+    private readonly int _playerSize;
+
+    public PlayerService(ILevelService levelService, int playerSize)
     {
         _players = new List<Player>();
         _playersKilled = new List<Player>();
+        _playerSize = playerSize;
 
         _levelService = levelService;
     }
@@ -62,8 +61,8 @@ public class PlayerService : IPlayerService
                 new PlayerProfile(
                     availableNames[nameChoice],
                     random.Next(18, 99)
-                ), 
-                PlayerSize
+                ),
+                _playerSize
             );
 
             availableNames.RemoveAt(nameChoice);
@@ -91,7 +90,7 @@ public class PlayerService : IPlayerService
         }
     }
 
-    public void Update()
+    public void Update(float deltaT)
     {
         // Clean up dead players
         foreach (var deadP in _playersKilled)
@@ -99,6 +98,12 @@ public class PlayerService : IPlayerService
             _players.Remove(deadP);
         }
         _playersKilled.Clear();
+
+        // Move alive players
+        foreach (var p in Players)
+        {
+            p.Move(deltaT);
+        }
     }
 
     private void OnPlaceEntered(object sender, PlaceUpdateArgs e)
