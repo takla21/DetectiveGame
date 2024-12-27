@@ -71,13 +71,20 @@ public class PlayerService : IPlayerService
 
             var schedule = new UnemployedSchedule(_levelService, clock);
 
+            // Calculate player position so they all start with a different position while being put in a circle.
+            var radialPosition = (i / (playerCount * 1.0)) * 2 * Math.PI;
+
+            // Cast positions into integer to convert back to pixels which improves performance.
+            var x = (int)(_playerSize * Math.Cos(radialPosition)) + 1000;
+            var y = (int)(_playerSize * Math.Sin(radialPosition)) + 500;
+            
             if (i == killer)
             {
-                role = new Killer(p.Id, new Vector2(1000, 500), _levelService, schedule);
+                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule);
             }
             else
             {
-                role = new Innocent(p.Name, new Vector2(1000, 500), schedule);
+                role = new Innocent(p.Name, new Vector2(x, y), schedule);
             }
 
             p.OnPlaceEntered += OnPlaceEntered;
