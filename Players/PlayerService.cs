@@ -1,6 +1,7 @@
 ﻿using Detective.Level;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -13,7 +14,7 @@ public interface IPlayerService : IDisposable
 
     public event PlayerDeathEventHandler OnDeath;
 
-    public void Initialize(int playerCount, string pathToNames);
+    public void Initialize(int playerCount, string pathToNames, Clock clock);
 
     public void Update();
 }
@@ -38,34 +39,38 @@ public class PlayerService : IPlayerService
 
     public event PlayerDeathEventHandler OnDeath;
 
-    public void Initialize(int playerCount, string pathToNames)
+    public void Initialize(int playerCount, string pathToNames, Clock clock)
     {
         var random = Globals.Random;
 
         var killer = random.Next(playerCount);
 
-        var availableNames = Array.Empty<string>();
+        var availableNames = new List<string>();
         using (var stream = Microsoft.Xna.Framework.TitleContainer.OpenStream(pathToNames))
         {
             using (var reader = new StreamReader(stream))
             {
-                availableNames = reader.ReadToEnd().Split("\r\n");
+                availableNames.AddRange(reader.ReadToEnd().Split("\r\n"));
             }
         }
 
         for (int i = 0; i < playerCount; i++)
         {
+            var nameChoice = random.Next(availableNames.Count);
+
             var p = new Player(
                 new PlayerProfile(
-                    availableNames[random.Next(availableNames.Length)],
+                    availableNames[nameChoice],
                     random.Next(18, 99)
                 ), 
                 PlayerSize
             );
 
+            availableNames.RemoveAt(nameChoice);
+
             PlayerRoleBase role;
 
-            var schedule = new UnemployedSchedule(_levelService);
+            var schedule = new UnemployedSchedule(_levelService, clock);
 
             if (i == killer)
             {
@@ -73,7 +78,7 @@ public class PlayerService : IPlayerService
             }
             else
             {
-                role = new Innocent(p.Id, new Vector2(1000, 500), schedule);
+                role = new Innocent(p.Name, new Vector2(1000, 500), schedule);
             }
 
             p.OnPlaceEntered += OnPlaceEntered;
@@ -99,8 +104,7 @@ public class PlayerService : IPlayerService
     private void OnPlaceEntered(object sender, PlaceUpdateArgs e)
     {
         var player = (Player)sender;
-        var place = _levelService.Places.First(x => x.Information == e.Place);
-        place.AddPlayer(player);
+        _levelService.EnterPlayer(player, e.Place);
     }
 
     private void OnPlaceExited(object sender, PlaceUpdateArgs e)
@@ -111,8 +115,7 @@ public class PlayerService : IPlayerService
 
     private void RemovePlayerFromPlace(Player player, PlaceInformation placeInformation)
     {
-        var place = _levelService.Places.First(x => x.Information == placeInformation);
-        place.RemovePlayer(player);
+        _levelService.RemovePlayer(player, placeInformation);
     }
 
     private void OnPlayerDeath(object sender, PlayerDeathEventArgs e)

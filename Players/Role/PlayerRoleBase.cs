@@ -87,6 +87,8 @@ public abstract class PlayerRoleBase : IDisposable
     {
         Schedule.OnPlaceEntered -= InnerOnPlaceEntered;
         Schedule.OnPlaceExited -= InnerOnPlaceExited;
+
+        Schedule.Dispose();
     }
 }
 

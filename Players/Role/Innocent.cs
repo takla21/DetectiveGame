@@ -10,7 +10,7 @@ public sealed class Innocent : PlayerRoleBase
 
     protected override void GenerateFutureMoves()
     {
-        var moves = Schedule.GenerateMoves(Position);
+        var moves = Schedule.GenerateMoves(Position, Schedule.CurrentPlace);
 
         foreach (var move in moves)
         {

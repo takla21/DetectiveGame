@@ -21,6 +21,10 @@ public interface ILevelService
     public Vector2 PickPointInLevel(Random random = null);
 
     public PlaceInformation PickPlace(Random random = null);
+
+    public void EnterPlayer(Player player, PlaceInformation placeInformation);
+
+    public void RemovePlayer(Player player, PlaceInformation placeInformation);
 }
 
 public record LevelChoice(Vector2 SelectedPoint, PlaceInformation SelectedPlace);
@@ -138,5 +142,17 @@ public class LevelService : ILevelService
         var draw = rand.Next(_places.Count);
         var place = _places[draw];
         return place.Information;
+    }
+
+    public void EnterPlayer(Player player, PlaceInformation placeInformation)
+    {
+        var place = _places.Find(x => x.Information == placeInformation);
+        place.AddPlayer(player);
+    }
+
+    public void RemovePlayer(Player player, PlaceInformation placeInformation)
+    {
+        var place = _places.Find(x => x.Information == placeInformation);
+        place.RemovePlayer(player);
     }
 }

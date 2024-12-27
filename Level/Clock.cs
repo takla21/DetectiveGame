@@ -19,6 +19,8 @@ public class Clock
 
     public int Minute { get; private set; }
 
+    public event ClockTickEventHandler HourChanged;
+
     public string FormattedTime => string.Format("{0:00}:{1:00}", Hour, Minute);
 
     public void Update(float deltaT)
@@ -39,6 +41,7 @@ public class Clock
         }
 
         Hour = ++Hour % 24;
+        HourChanged?.Invoke(this, new ClockTickEventArgs(Day, Hour, Minute));
 
         if (Hour == 0)
         {
@@ -46,3 +49,7 @@ public class Clock
         }
     }
 }
+
+public delegate void ClockTickEventHandler(object sender, ClockTickEventArgs e);
+
+public record ClockTickEventArgs(int Day, int Hour, int Minute);

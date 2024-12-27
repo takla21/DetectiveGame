@@ -9,7 +9,7 @@ namespace Detective.Screens;
 
 public sealed class GameScreen : IScreen
 {
-    private const int Clock_Speed = 100;
+    private const int Clock_Speed = 1000;
 
     private readonly NavigationController _navigationController;
     private readonly GameEngine _engine;
@@ -44,7 +44,7 @@ public sealed class GameScreen : IScreen
         _hub.OnExpand -= OnExpand;
         _hub.OnExpand += OnExpand;
 
-        _engine.Init(content);
+        _engine.Init(content, _clock);
     }
 
     private void OnExpand()

@@ -38,9 +38,9 @@ public static class AStar
                         if (currentDirection != Vector2.Zero)
                         {
                             moves.Add(new MoveTowardsPoint(direction: currentDirection, endPoint: endMove, speed: 100));
+                            endMove = current;
                         }
                         currentDirection = direction;
-                        endMove = current;
                     }
                 } while (current != startPoint);
 

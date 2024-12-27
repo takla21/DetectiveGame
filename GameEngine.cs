@@ -31,12 +31,12 @@ public class GameEngine : IDisposable
 
     public NotificationController NotificationController { get; }
 
-    public void Init(ContentManager content)
+    public void Init(ContentManager content, Clock clock)
     {
         _levelService.Initialize();
 
         var filePath = Path.Combine(content.RootDirectory, NameFilesName);
-        _playerService.Initialize(playerCount: 10, filePath);
+        _playerService.Initialize(playerCount: 10, filePath, clock);
     }
 
     private void OnDeath(object sender, PlayerDeathEventArgs e)

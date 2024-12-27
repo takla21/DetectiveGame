@@ -29,7 +29,8 @@ public sealed class Killer : PlayerRoleBase
         {
             default:
             case KillerState.Calm:
-                var moves = Schedule.GenerateMoves(Position);
+                var moves = Schedule.GenerateMoves(Position, _currentPlace);
+                _currentPlace = Schedule.CurrentPlace;
 
                 foreach (var move in moves)
                 {
