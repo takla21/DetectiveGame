@@ -10,6 +10,7 @@ public sealed class Button
     private readonly Texture2D _texture;
     private readonly Rectangle _bounds;
     private readonly Color _initialColor;
+    private readonly object _value;
 
     private readonly string _text;
     private readonly SpriteFont _spriteFont;
@@ -19,11 +20,13 @@ public sealed class Button
     private Color _color;
     private bool isHovered;
 
+    private bool _isCooldown;
+
     public Vector2 Position { get; }
     public Vector2 Size { get; }
-    public event Action OnClick;
+    public event ButtonClickEventHandler OnClick;
 
-    public Button(Texture2D texture, Vector2 position, Vector2 size, Color backgroundColor)
+    public Button(Texture2D texture, Vector2 position, Vector2 size, Color backgroundColor, object value = null)
     {
         _texture = texture;
         _initialColor = backgroundColor;
@@ -33,9 +36,12 @@ public sealed class Button
 
         _bounds = new Rectangle(position.ToPoint(), size.ToPoint());
         _color = backgroundColor;
+
+        _value = value;
+        _isCooldown = false;
     }
 
-    public Button(Texture2D texture, Vector2 position, Vector2 size, Color backgroundColor, string text, SpriteFont spriteFont, Color textColor)
+    public Button(Texture2D texture, Vector2 position, Vector2 size, Color backgroundColor, string text, SpriteFont spriteFont, Color textColor, object value = null)
     {
         _texture = texture;
         _initialColor = backgroundColor;
@@ -51,6 +57,9 @@ public sealed class Button
         _color = backgroundColor;
 
         _textSize = spriteFont.MeasureString(text);
+
+        _value = value;
+        _isCooldown = false;
     }
 
     public void Update(MouseState mouseState)
@@ -62,9 +71,15 @@ public sealed class Button
         _color = isHovered ? Color.Gray : _initialColor;
 
         // Detect click
-        if (isHovered && mouseState.LeftButton == ButtonState.Pressed)
+        if (!_isCooldown && isHovered && mouseState.LeftButton == ButtonState.Pressed)
         {
-            OnClick?.Invoke();
+            OnClick?.Invoke(this, new ButtonClickEventArgs(_value));
+            _isCooldown = true;
+        }
+
+        if (mouseState.LeftButton == ButtonState.Released)
+        {
+            _isCooldown = false;
         }
     }
 
@@ -79,3 +94,7 @@ public sealed class Button
         }
     }
 }
+
+public delegate void ButtonClickEventHandler(object sender, ButtonClickEventArgs e);
+
+public record ButtonClickEventArgs(object Value);

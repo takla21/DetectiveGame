@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -8,8 +9,12 @@ namespace Detective.Navigation;
 
 public class NavigationController
 {
+    private readonly int _screenWidth;
+    private readonly int _screenHeight;
+
     private ContentManager _contentManager;
     private GraphicsDevice _graphicsDevice;
+    private Texture2D _defaultTexture;
 
     public Stack<IScreen> NavigationStack { get; }
 
@@ -25,8 +30,11 @@ public class NavigationController
     private readonly Queue<(NavigationOperation Type, IScreen Screen)> _navigationStackOperations;
     private readonly Queue<(NavigationOperation Type, IModalScreen Modal)> _modalStackOperations;
 
-    public NavigationController()
+    public NavigationController(int screenWidth, int screenHeight)
     {
+        _screenWidth = screenWidth;
+        _screenHeight = screenHeight;
+
         ModalStack = new Stack<IModalScreen>();
         NavigationStack = new Stack<IScreen>();
 
@@ -38,6 +46,9 @@ public class NavigationController
     {
         _contentManager = contentManager;
         _graphicsDevice = graphicsDevice;
+
+        _defaultTexture = new Texture2D(_graphicsDevice, 1, 1);
+        _defaultTexture.SetData([Color.White]);
     }
 
     public void Update(float deltaT, MouseState mouseState)
@@ -102,18 +113,22 @@ public class NavigationController
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        if (ModalStack.Count > 0)
+        var currentModal = ModalStack.Count > 0 ? ModalStack.Peek() : default;
+        if (!currentModal?.IsFullScreen ?? true)
         {
-            var currentModal = ModalStack.Peek();
-            currentModal.Draw(spriteBatch);
-
-            if (currentModal.IsFullScreen)
-            {
-                return;
-            }
+            NavigationStack.Peek().Draw(spriteBatch);
         }
 
-        NavigationStack.Peek().Draw(spriteBatch);
+        if (currentModal is not null)
+        {
+            if (!currentModal.IsFullScreen)
+            {
+                // Draw modal overlay
+                spriteBatch.Draw(_defaultTexture, new Rectangle(x: 0, y: 0, width: _screenWidth, height: _screenHeight), new Color(0.25f, 0.25f, 0.25f, 0.5f));
+            }
+
+            currentModal.Draw(spriteBatch);
+        }
     }
 
     public void NavigateTo(IScreen screen)
@@ -154,7 +169,7 @@ public class NavigationController
 
     public void NavigateBackOrDismissModal()
     {
-        if (ModalStack.Count > 1)
+        if (ModalStack.Count > 0)
         {
             DismissModal();
         }

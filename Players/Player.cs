@@ -63,6 +63,11 @@ public class Player : IDisposable
         OnDeath?.Invoke(this, new PlayerDeathEventArgs(placeInformation));
     }
 
+    public bool IsKiller()
+    {
+        return _role is Killer;
+    }
+
     public void Dispose()
     {
         _role.OnPlaceEntered -= InnerOnEnteredChanged;

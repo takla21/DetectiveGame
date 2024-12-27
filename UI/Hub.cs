@@ -40,7 +40,7 @@ public class Hub : IDisposable
         _expandBtn.OnClick += OnExpandButtonClicked;
     }
 
-    private void OnExpandButtonClicked()
+    private void OnExpandButtonClicked(object sender, ButtonClickEventArgs e)
     {
         OnExpand?.Invoke();
     }

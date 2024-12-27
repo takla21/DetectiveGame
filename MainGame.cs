@@ -3,6 +3,7 @@ using Detective.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 
 namespace Detective;
 
@@ -18,6 +19,8 @@ public class MainGame : Game
     private const int ScreenWidth = 1920;
     private const int ScreenHeight = 1080;
 
+    private bool _escapeCooldown;
+
     public MainGame()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -25,7 +28,9 @@ public class MainGame : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
 
-        _navigationController = new NavigationController();
+        _escapeCooldown = false;
+
+        _navigationController = new NavigationController(ScreenWidth, ScreenHeight);
     }
 
     protected override void Initialize()
@@ -53,9 +58,17 @@ public class MainGame : Game
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        var keyboardState = Keyboard.GetState();
+
+        if (!_escapeCooldown && (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape)))
         {
             OnEscapeClicked();
+            _escapeCooldown = true;
+        }
+
+        if (keyboardState.IsKeyUp(Keys.Escape))
+        {
+            _escapeCooldown = false;
         }
 
         var mouseState = Mouse.GetState();
@@ -67,7 +80,7 @@ public class MainGame : Game
 
     private void OnEscapeClicked()
     {
-        if (_navigationController.NavigationStack.Count > 1 || _navigationController.ModalStack.Count > 1)
+        if (_navigationController.NavigationStack.Count > 1 || _navigationController.ModalStack.Count > 0)
         {
             _navigationController.NavigateBackOrDismissModal();
             return;
@@ -84,7 +97,7 @@ public class MainGame : Game
 
         _navigationController.Draw(_spriteBatch);
 
-        _spriteBatch.DrawString(_debugFont, Globals.RandomFactory.Seed.ToString(), new Vector2(0,0), Color.Black);
+        _spriteBatch.DrawString(_debugFont, Globals.RandomFactory.Seed.ToString(), new Vector2(0, 0), Color.Black);
 
         _spriteBatch.End();
 

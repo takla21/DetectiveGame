@@ -39,7 +39,7 @@ public sealed class MenuScreen : IScreen
         _startBtn.OnClick += OnStartClick;
     }
 
-    private void OnStartClick()
+    private void OnStartClick(object sender, ButtonClickEventArgs e)
     {
         _navigationController.NavigateAndClear(new GameScreen(_screenWidth, _screenHeight, _navigationController));
     }

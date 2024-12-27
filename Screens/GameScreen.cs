@@ -1,4 +1,5 @@
 ﻿using Detective.Navigation;
+using Detective.Players;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -12,6 +13,7 @@ public sealed class GameScreen : IScreen
     private const int Clock_Speed = 1000;
 
     private readonly NavigationController _navigationController;
+    private readonly IPlayerService playerService;
     private readonly GameEngine _engine;
     private readonly Clock _clock;
 
@@ -49,7 +51,7 @@ public sealed class GameScreen : IScreen
 
     private void OnExpand()
     {
-        // TODO: Open modal with information
+        _navigationController.ShowModal(new AccusationScreen(_screenWidth, _screenHeight, _navigationController, _engine.Players));
     }
 
     public void Update(float deltaT, MouseState mouseState)
