@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Detective.Screens;
 
-public sealed class MenuScreen : IScreen
+public sealed class MainMenuScreen : IScreen
 {
     private readonly NavigationController _navigationController;
 
@@ -17,7 +17,7 @@ public sealed class MenuScreen : IScreen
 
     private const int ButtonSize = 100;
 
-    public MenuScreen(NavigationController navigationController)
+    public MainMenuScreen(NavigationController navigationController)
     {
         _navigationController = navigationController;
     }
