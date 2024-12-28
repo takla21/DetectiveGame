@@ -10,8 +10,6 @@ namespace Detective.Screens;
 public sealed class MenuScreen : IScreen
 {
     private readonly NavigationController _navigationController;
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
@@ -19,11 +17,9 @@ public sealed class MenuScreen : IScreen
 
     private const int ButtonSize = 100;
 
-    public MenuScreen(int screenWidth, int screenHeight, NavigationController navigationController)
+    public MenuScreen(NavigationController navigationController)
     {
         _navigationController = navigationController;
-        _screenWidth = screenWidth;
-        _screenHeight = screenHeight;
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -33,7 +29,7 @@ public sealed class MenuScreen : IScreen
         _defaultTexture = new Texture2D(graphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _startBtn = new Button(_defaultTexture, new Vector2(_screenWidth * 0.5f - ButtonSize * 0.5f, _screenHeight * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Start", _font, Color.Black);
+        _startBtn = new Button(_defaultTexture, new Vector2(_navigationController.ScreenWidth * 0.5f - ButtonSize * 0.5f, _navigationController.ScreenHeight * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Start", _font, Color.Black);
 
         _startBtn.OnClick -= OnStartClick;
         _startBtn.OnClick += OnStartClick;
@@ -41,7 +37,7 @@ public sealed class MenuScreen : IScreen
 
     private void OnStartClick(object sender, ButtonClickEventArgs e)
     {
-        _navigationController.NavigateAndClear(new GameScreen(_screenWidth, _screenHeight, _navigationController));
+        _navigationController.NavigateAndClear(new GameScreen(_navigationController));
     }
 
     public void Draw(SpriteBatch spriteBatch)

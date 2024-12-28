@@ -34,15 +34,15 @@ public class AccusationScreen : IModalScreen
     private Texture2D _defaultTexture;
     private SpriteFont _font;
 
-    public AccusationScreen(int screenWidth, int screenHeight, NavigationController navigationController, IEnumerable<Player> players)
+    public AccusationScreen(NavigationController navigationController, IEnumerable<Player> players)
     {
         _navigationController = navigationController;
         _playerService = players;
 
         _playersButton = new Dictionary<Player, Button>();
 
-        _horizontalModalPadding = (screenWidth - ModalWidth) / 2;
-        _verticalModalPadding = (screenHeight - ModalHeight) / 2;
+        _horizontalModalPadding = (navigationController.ScreenWidth - ModalWidth) / 2;
+        _verticalModalPadding = (navigationController.ScreenHeight - ModalHeight) / 2;
 
         _horizontalButtonsPadding = (ModalWidth - (ButtonWidth * MaxRows)) / 2;
         _verticalButtonsPadding = (ModalHeight - (ButtonHeight * ButtonPerColumn)) / 2;

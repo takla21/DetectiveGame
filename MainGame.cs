@@ -51,7 +51,7 @@ public class MainGame : Game
         _defaultTexture.SetData([Color.White]);
 
         _navigationController.Load(Content, GraphicsDevice);
-        _navigationController.NavigateTo(new MenuScreen(ScreenWidth, ScreenHeight, _navigationController));
+        _navigationController.NavigateTo(new MenuScreen(_navigationController));
 
         _debugFont = Content.Load<SpriteFont>("default");
     }

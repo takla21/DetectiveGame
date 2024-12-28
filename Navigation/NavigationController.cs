@@ -9,9 +9,6 @@ namespace Detective.Navigation;
 
 public class NavigationController
 {
-    private readonly int _screenWidth;
-    private readonly int _screenHeight;
-
     private ContentManager _contentManager;
     private GraphicsDevice _graphicsDevice;
     private Texture2D _defaultTexture;
@@ -19,6 +16,10 @@ public class NavigationController
     public Stack<IScreen> NavigationStack { get; }
 
     public Stack<IModalScreen> ModalStack { get; }
+
+    public int ScreenWidth { get; }
+
+    public int ScreenHeight { get; }
 
     private enum NavigationOperation
     {
@@ -32,8 +33,8 @@ public class NavigationController
 
     public NavigationController(int screenWidth, int screenHeight)
     {
-        _screenWidth = screenWidth;
-        _screenHeight = screenHeight;
+        ScreenWidth = screenWidth;
+        ScreenHeight = screenHeight;
 
         ModalStack = new Stack<IModalScreen>();
         NavigationStack = new Stack<IScreen>();
@@ -124,7 +125,7 @@ public class NavigationController
             if (!currentModal.IsFullScreen)
             {
                 // Draw modal overlay
-                spriteBatch.Draw(_defaultTexture, new Rectangle(x: 0, y: 0, width: _screenWidth, height: _screenHeight), new Color(0.25f, 0.25f, 0.25f, 0.5f));
+                spriteBatch.Draw(_defaultTexture, new Rectangle(x: 0, y: 0, width: ScreenWidth, height: ScreenHeight), new Color(0.25f, 0.25f, 0.25f, 0.5f));
             }
 
             currentModal.Draw(spriteBatch);
