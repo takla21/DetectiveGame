@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 
 namespace Detective.UI;
 
@@ -19,6 +18,10 @@ public sealed class Button
 
     private Color _color;
     private bool isHovered;
+
+    // This required to ensure it doesn't check if button are clicked even before it's visible.
+    private bool _hasBeenRendered;
+    private bool _isReady;
 
     private bool _isCooldown;
 
@@ -38,7 +41,8 @@ public sealed class Button
         _color = backgroundColor;
 
         _value = value;
-        _isCooldown = false;
+
+        SetInitialVariableStates();
     }
 
     public Button(Texture2D texture, Vector2 position, Vector2 size, Color backgroundColor, string text, SpriteFont spriteFont, Color textColor, object value = null)
@@ -59,7 +63,14 @@ public sealed class Button
         _textSize = spriteFont.MeasureString(text);
 
         _value = value;
+        SetInitialVariableStates();
+    }
+
+    private void SetInitialVariableStates()
+    {
         _isCooldown = false;
+        _hasBeenRendered = false;
+        _isReady = false;
     }
 
     public void Update(MouseState mouseState)
@@ -67,11 +78,22 @@ public sealed class Button
         // Check if the mouse is over the button
         isHovered = _bounds.Contains(mouseState.Position);
 
+        if (!_hasBeenRendered)
+        {
+            _isReady = !(isHovered && mouseState.LeftButton == ButtonState.Pressed);
+            return;
+        }
+
+        if (!_isReady)
+        {
+            _isReady = !isHovered || mouseState.LeftButton != ButtonState.Pressed;
+        }
+
         // Change color on hover
         _color = isHovered ? Color.Gray : _initialColor;
 
         // Detect click
-        if (!_isCooldown && isHovered && mouseState.LeftButton == ButtonState.Pressed)
+        if (_isReady &&!_isCooldown && isHovered && mouseState.LeftButton == ButtonState.Pressed)
         {
             OnClick?.Invoke(this, new ButtonClickEventArgs(_value));
             _isCooldown = true;
@@ -92,6 +114,8 @@ public sealed class Button
             var textPos = new Vector2((float)(_bounds.X + _bounds.Width * 0.5 - _textSize.X * 0.5), (float)(_bounds.Y + _bounds.Height * 0.5 - _textSize.Y * 0.5));
             spriteBatch.DrawString(_spriteFont, _text, textPos, _textColor);
         }
+
+        _hasBeenRendered = true;
     }
 }
 

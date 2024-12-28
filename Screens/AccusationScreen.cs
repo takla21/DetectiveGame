@@ -28,7 +28,6 @@ public class AccusationScreen : IModalScreen
 
     private readonly NavigationController _navigationController;
     private readonly IEnumerable<Player> _playerService;
-    private readonly IDisposable _playerDeathSubscription;
     private readonly IDictionary<Player, Button> _playersButton;
 
     private Texture2D _defaultTexture;
@@ -78,18 +77,24 @@ public class AccusationScreen : IModalScreen
         }
     }
 
+    private int tempAttemp = 0;
     private void OnPlayerButtonClicked(object sender, ButtonClickEventArgs e)
     {
         var player = (Player)e.Value;
 
         if (player.IsKiller())
         {
-            // TODO : display winning screen.
-            Debug.WriteLine($"{player.Name} is the killer.");
+            _navigationController.DismissModal();
+            _navigationController.NavigateAndClear(new GameOverScreen(_navigationController, true));
         }
         else
         {
-            // TODO : what happens when it fails
+            // TODO : Think of a better way to end the game. For debugging purposes, it's good enough.
+            if (tempAttemp++ >= 2)
+            {
+                _navigationController.DismissModal();
+                _navigationController.NavigateAndClear(new GameOverScreen(_navigationController, false));
+            }
             Debug.WriteLine($"{player.Name} is NOT the killer.");
         }
     }
@@ -114,8 +119,6 @@ public class AccusationScreen : IModalScreen
 
     public void Dispose()
     {
-        _playerDeathSubscription?.Dispose();
-
         foreach (var button in _playersButton.Values)
         {
             button.OnClick -= OnPlayerButtonClicked;
