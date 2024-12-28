@@ -40,60 +40,17 @@ public class PlayerService : IPlayerService
 
     public void Initialize(int playerCount, string pathToNames, Clock clock)
     {
-        var random = Globals.Random;
+        var playerFactory = new PlayerFactory(Globals.Random, pathToNames, _levelService);
 
-        var killer = random.Next(playerCount);
+        var results = playerFactory.Create(playerCount, _playerSize, clock);
 
-        var availableNames = new List<string>();
-        using (var stream = Microsoft.Xna.Framework.TitleContainer.OpenStream(pathToNames))
+        foreach (var player in results)
         {
-            using (var reader = new StreamReader(stream))
-            {
-                availableNames.AddRange(reader.ReadToEnd().Split("\r\n"));
-            }
-        }
+            player.OnPlaceEntered += OnPlaceEntered;
+            player.OnPlaceExited += OnPlaceExited;
+            player.OnDeath += OnPlayerDeath;
 
-        for (int i = 0; i < playerCount; i++)
-        {
-            var nameChoice = random.Next(availableNames.Count);
-
-            var p = new Player(
-                new PlayerProfile(
-                    availableNames[nameChoice],
-                    random.Next(18, 99)
-                ),
-                _playerSize
-            );
-
-            availableNames.RemoveAt(nameChoice);
-
-            PlayerRoleBase role;
-
-            var schedule = new UnemployedSchedule(_levelService, clock);
-
-            // Calculate player position so they all start with a different position while being put in a circle.
-            var radialPosition = (i / (playerCount * 1.0)) * 2 * Math.PI;
-
-            // Cast positions into integer to convert back to pixels which improves performance.
-            var x = (int)(_playerSize * Math.Cos(radialPosition)) + 1000;
-            var y = (int)(_playerSize * Math.Sin(radialPosition)) + 500;
-            
-            if (i == killer)
-            {
-                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule);
-            }
-            else
-            {
-                role = new Innocent(p.Name, new Vector2(x, y), schedule);
-            }
-
-            p.OnPlaceEntered += OnPlaceEntered;
-            p.OnPlaceExited += OnPlaceExited;
-            p.OnDeath += OnPlayerDeath;
-
-            p.AssignRole(role);
-
-            _players.Add(p);
+            _players.Add(player);
         }
     }
 
