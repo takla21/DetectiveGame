@@ -6,7 +6,7 @@ public class Clock
 
     public Clock()
     {
-        Day = 1;
+        Day = 0;
         Hour = 12;
         Minute = 0;
 
