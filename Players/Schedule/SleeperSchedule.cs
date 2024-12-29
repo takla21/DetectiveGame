@@ -12,8 +12,9 @@ namespace Detective.Players
         private readonly Place _home;
         private readonly LevelInformation _levelInformation;
 
-        private int _timeToSleep;
-        private int _timeToWakeUp;
+        protected int TimeToSleep { get; private set; }
+
+        protected int TimeToWakeUp { get; private set; }
 
         protected bool IsTimeToSleep { get; private set; }
 
@@ -27,9 +28,11 @@ namespace Detective.Players
             _clockSubscription = new ActionDisposable(() => clock.HourChanged -= InnterOnHourChanged);
             clock.HourChanged += InnterOnHourChanged;
 
-            _timeToSleep = SetTimeToSleep();
-
             IsTimeToSleep = false;
+
+            // Set it to a dumb value to ensure that it has been initialized properly (child ctor called).
+            TimeToSleep = -1;
+            TimeToWakeUp = -1;
         }
 
         public PlaceInformation CurrentPlace { get; protected set; }
@@ -43,26 +46,46 @@ namespace Detective.Players
             OnHourChanged(e.Day, e.Hour, e.Minute);
         }
 
-        protected virtual int SetTimeToSleep() => Globals.Random.Next(21, 24) % 24;
+        protected virtual int SetTimeToSleep() => Globals.Random.Next(21, 24);
 
         protected virtual int SetTimeToWakeUp() => Globals.Random.Next(6, 12);
 
         protected virtual void OnHourChanged(int day, int hour, int minute)
         {
+            if (TimeToSleep == -1 || TimeToWakeUp == -1)
+            {
+                TimeToSleep = SetTimeToSleep();
+                TimeToWakeUp = SetTimeToWakeUp();
+            }
+
             var previousState = IsTimeToSleep;
-            IsTimeToSleep = hour >= _timeToSleep || hour <= _timeToWakeUp;
+            IsTimeToSleep = CheckIsTimeToSleep(currentHour: hour);
 
             if (IsTimeToSleep != previousState)
             {
                 if (IsTimeToSleep)
                 {
-                    OnClearMoves?.Invoke();
+                    ClearMoves();
                 }
 
-                _timeToSleep = IsTimeToSleep ? _timeToSleep : SetTimeToSleep();
-                _timeToWakeUp = IsTimeToSleep ? SetTimeToWakeUp() : _timeToWakeUp;
+                if (!IsTimeToSleep)
+                {
+                    TimeToSleep = SetTimeToSleep();
+                    TimeToWakeUp = SetTimeToWakeUp();
+                }
+
                 ShouldLeaveOnNextIteration = IsTimeToSleep ? ShouldLeaveOnNextIteration : true;
             }
+        }
+
+        protected void ClearMoves()
+        {
+            OnClearMoves?.Invoke();
+        }
+
+        protected virtual bool CheckIsTimeToSleep(int currentHour)
+        {
+            return currentHour >= TimeToSleep || currentHour <= TimeToWakeUp;
         }
 
         public virtual IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
