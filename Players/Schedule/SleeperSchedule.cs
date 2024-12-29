@@ -2,7 +2,6 @@
 using Detective.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
 namespace Detective.Players
@@ -37,6 +36,7 @@ namespace Detective.Players
 
         public event PlaceUpdateHandler OnPlaceEntered;
         public event PlaceUpdateHandler OnPlaceExited;
+        public event Action OnClearMoves;
 
         private void InnterOnHourChanged(object sender, ClockTickEventArgs e)
         {
@@ -54,6 +54,11 @@ namespace Detective.Players
 
             if (IsTimeToSleep != previousState)
             {
+                if (IsTimeToSleep)
+                {
+                    OnClearMoves?.Invoke();
+                }
+
                 _timeToSleep = IsTimeToSleep ? _timeToSleep : SetTimeToSleep();
                 _timeToWakeUp = IsTimeToSleep ? SetTimeToWakeUp() : _timeToWakeUp;
                 ShouldLeaveOnNextIteration = IsTimeToSleep ? ShouldLeaveOnNextIteration : true;

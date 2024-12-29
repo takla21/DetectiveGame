@@ -24,6 +24,16 @@ public abstract class PlayerRoleBase : IDisposable
 
         schedule.OnPlaceEntered += InnerOnPlaceEntered;
         schedule.OnPlaceExited += InnerOnPlaceExited;
+        schedule.OnClearMoves += OnClearMoves;
+    }
+
+    protected virtual void OnClearMoves()
+    {
+        FutureMoves.Clear();
+        CurrentMove = null;
+
+        // Floor position to avoid float position which breaks A* algorithm
+        Position = new Vector2((int)Position.X, (int)Position.Y);
     }
 
     public Vector2 Position { get; private set; }
@@ -87,6 +97,7 @@ public abstract class PlayerRoleBase : IDisposable
     {
         Schedule.OnPlaceEntered -= InnerOnPlaceEntered;
         Schedule.OnPlaceExited -= InnerOnPlaceExited;
+        Schedule.OnClearMoves -= OnClearMoves;
 
         if (Schedule is IDisposable disposable)
         {

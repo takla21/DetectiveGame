@@ -1,4 +1,5 @@
 ﻿using Detective.Level;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -13,4 +14,6 @@ public interface IPlayerSchedule
     public event PlaceUpdateHandler OnPlaceEntered;
 
     public event PlaceUpdateHandler OnPlaceExited;
+
+    public event Action OnClearMoves;
 }
