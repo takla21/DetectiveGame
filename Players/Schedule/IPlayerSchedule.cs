@@ -1,11 +1,10 @@
 ﻿using Detective.Level;
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 
 namespace Detective.Players;
 
-public interface IPlayerSchedule : IDisposable
+public interface IPlayerSchedule
 {
     public PlaceInformation CurrentPlace { get; }
 

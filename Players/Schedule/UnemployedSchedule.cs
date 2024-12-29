@@ -1,84 +1,42 @@
 ﻿using Detective.Level;
-using Detective.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
 namespace Detective.Players;
 
-public class UnemployedSchedule : IPlayerSchedule
+public sealed class UnemployedSchedule : SleeperSchedule
 {
     private readonly ILevelService _levelService;
-    private readonly IDisposable _clockSubscription;
 
-    private bool _shouldGoToHouse;
-    private int _timeToSleep;
-    private int _timeToWakeUp;
-
-    private bool _shouldLeaveOnNextIteration;
-
-    public PlaceInformation CurrentPlace { get; private set; }
-
-    public UnemployedSchedule(ILevelService levelService, Clock clock)
+    public UnemployedSchedule(ILevelService levelService, Clock clock) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock)
     {
         _levelService = levelService;
-
-        _clockSubscription = new ActionDisposable(() => clock.HourChanged -= OnHourChanged);
-        clock.HourChanged += OnHourChanged;
-
-        _shouldGoToHouse = false;
-        _shouldLeaveOnNextIteration = false;
-
-        _timeToSleep = Globals.Random.Next(21, 23);
-        _timeToWakeUp = Globals.Random.Next(6, 12);
     }
 
-    private void OnHourChanged(object sender, ClockTickEventArgs e)
+    protected override void OnHourChanged(int day, int hour, int minute)
     {
-        var previousState = _shouldGoToHouse;
-        _shouldGoToHouse = e.Hour >= _timeToSleep || e.Hour <= _timeToWakeUp;
-
-        if (_shouldGoToHouse != previousState)
-        {
-            _timeToSleep = _shouldGoToHouse ? _timeToSleep : Globals.Random.Next(21, 27) % 24;
-            _timeToWakeUp = _shouldGoToHouse ? Globals.Random.Next(6, 12) : _timeToWakeUp;
-            _shouldLeaveOnNextIteration = _shouldGoToHouse ? _shouldLeaveOnNextIteration : true;
-        }
+        base.OnHourChanged(day, hour, minute);
     }
 
-    public event PlaceUpdateHandler OnPlaceEntered;
-    public event PlaceUpdateHandler OnPlaceExited;
-
-    public IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
+    public override IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
     {
         var moves = new List<IMove>();
+        var previousPlace = currentPlace;
 
-        var previousPlace = CurrentPlace;
+        if (IsTimeToSleep)
+        {
+            return base.GenerateMoves(currentPosition, currentPlace);
+        }
 
         Vector2 target = default;
         var selectedPlace = default(PlaceInformation);
-
-        if (_shouldGoToHouse)
+        do
         {
-            if (CurrentPlace != null && CurrentPlace.Type == PlaceType.Houses)
-            {
-                return Array.Empty<IMove>();
-            }
-
-            var houses = _levelService.Places.First(x => x.Information.Type == PlaceType.Houses);
-            target = houses.Information.EntrancePosition;
-            selectedPlace = houses.Information;
-        }
-        else
-        {
-            do
-            {
-                var result = _levelService.PickPointOrPlace();
-                target = result.SelectedPoint;
-                selectedPlace = result.SelectedPlace;
-            } while (target == currentPosition);
-        }
+            var result = _levelService.PickPointOrPlace();
+            target = result.SelectedPoint;
+            selectedPlace = result.SelectedPlace;
+        } while (target == currentPosition);
 
         if (selectedPlace != null)
         {
@@ -88,10 +46,10 @@ public class UnemployedSchedule : IPlayerSchedule
             // Add invisiblity when entering into place.
             moves.Add(new ExecuteAction(() =>
             {
-                OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(selectedPlace));
-                _shouldLeaveOnNextIteration = !_shouldGoToHouse;
+                EnterPlace(selectedPlace);
+                CurrentPlace = selectedPlace;
+                ShouldLeaveOnNextIteration = true;
             }, shouldBeVisible: false));
-            CurrentPlace = selectedPlace;
         }
         else
         {
@@ -108,26 +66,18 @@ public class UnemployedSchedule : IPlayerSchedule
                 invalidPoints: _levelService.Information.InvalidPositions
         ));
 
-        if (_shouldLeaveOnNextIteration)
+        // Add base moves at the end.
+        if (ShouldLeaveOnNextIteration)
         {
             moves.Add(new ExecuteAction(() =>
             {
-                OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(previousPlace));
-
-                if (previousPlace == CurrentPlace)
-                {
-                    CurrentPlace = null;
-                }
+                ExitPlace(previousPlace);
+                CurrentPlace = null;
             }, shouldBeVisible: true));
 
-            _shouldLeaveOnNextIteration = false;
+            ShouldLeaveOnNextIteration = false;
         }
 
         return moves;
-    }
-
-    public void Dispose()
-    {
-        _clockSubscription.Dispose();
     }
 }
