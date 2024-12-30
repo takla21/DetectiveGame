@@ -1,4 +1,5 @@
 ﻿using Detective.Configuration;
+using Detective.Engine;
 using Detective.Navigation;
 using Detective.UI;
 using Microsoft.Xna.Framework;
@@ -12,6 +13,7 @@ public sealed class MainMenuScreen : IScreen
 {
     private readonly INavigationService _navigationService;
     private readonly ScreenConfiguration _screenConfiguration;
+    private readonly IGameState _gameState;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
@@ -19,10 +21,11 @@ public sealed class MainMenuScreen : IScreen
 
     private const int ButtonSize = 100;
 
-    public MainMenuScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration)
+    public MainMenuScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, IGameState gameState)
     {
         _screenConfiguration = screenConfiguration;
         _navigationService = navigationController;
+        _gameState = gameState;
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -40,6 +43,8 @@ public sealed class MainMenuScreen : IScreen
 
     private void OnStartClick(object sender, ButtonClickEventArgs e)
     {
+        _gameState.StartGame();
+
         _navigationService.NavigateAndClear<GameScreen>();
     }
 

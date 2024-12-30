@@ -1,4 +1,5 @@
 ﻿using Detective.Configuration;
+using Detective.Engine;
 using Detective.Navigation;
 using Detective.Players;
 using Detective.UI;
@@ -28,14 +29,17 @@ public class AccusationScreen : IModalScreen
 
     private readonly INavigationService _navigationController;
     private readonly IEnumerable<Player> _playerService;
+    private readonly IGameState _gameState;
     private readonly IDictionary<Player, Button> _playersButton;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
 
-    public AccusationScreen(INavigationService navigationController, IPlayerService playerService, ScreenConfiguration screenConfiguration)
+    public AccusationScreen(INavigationService navigationController, IPlayerService playerService, ScreenConfiguration screenConfiguration, IGameState gameState)
     {
         _navigationController = navigationController;
+        _gameState = gameState;
+
         _playerService = playerService.Players;
 
         _playersButton = new Dictionary<Player, Button>();
@@ -84,16 +88,20 @@ public class AccusationScreen : IModalScreen
 
         if (player.IsKiller())
         {
+            _gameState.EndGame(true);
+
             _navigationController.DismissModal();
-            _navigationController.NavigateAndClear<GameOverScreen>(); // TODO: Find a way to set hasGameWon = true
+            _navigationController.NavigateAndClear<GameOverScreen>();
         }
         else
         {
             // TODO : Think of a better way to end the game. For debugging purposes, it's good enough.
             if (tempAttemp++ >= 2)
             {
+                _gameState.EndGame(false);
+
                 _navigationController.DismissModal();
-                _navigationController.NavigateAndClear<GameOverScreen>(); // TODO: Find a way to set hasGameWon = false
+                _navigationController.NavigateAndClear<GameOverScreen>();
             }
             Debug.WriteLine($"{player.Name} is NOT the killer.");
         }

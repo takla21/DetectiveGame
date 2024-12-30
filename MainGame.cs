@@ -60,11 +60,12 @@ public class MainGame : Game
 
             // Services
             .AddSingleton<INavigationService, NavigationService>()
-            .AddSingleton<IGameEngine, GameEngine>()
-            .AddSingleton<ILevelService, LevelService>()
-            .AddSingleton<IPlayerService, PlayerService>()
             .AddSingleton<INotificationService, NotificationService>()
-            .AddSingleton<Clock>()
+            .AddSingleton<IGameState, GameState>()
+            .AddScoped<IGameEngine, GameEngine>()
+            .AddScoped<ILevelService, LevelService>()
+            .AddScoped<IPlayerService, PlayerService>()
+            .AddScoped<Clock>()
         );
 
         return builder;
@@ -94,8 +95,7 @@ public class MainGame : Game
             .AddSingleton<IScreenLoader>(s => new ScreenLoader(Content, GraphicsDevice))
             .AddSingleton<NavigationController>()
             .AddSingleton<IRandomFactory, RSeedRandom>()
-            .AddSingleton(s => s.GetRequiredService<IRandomFactory>().GenerateRandom()) // Set injectedSeed to remove randomness (for debugging purposes)
-            .AddSingleton<IPlayerFactory>(s =>
+            .AddScoped<IPlayerFactory>(s =>
             {
                 var nameFilePath = Path.Combine(Content.RootDirectory, NameFilesName);
                 return new PlayerFactory(
@@ -106,15 +106,19 @@ public class MainGame : Game
                     nameFilePath
                 );
             })
+            .AddScoped(s => s.GetRequiredService<IRandomFactory>().GenerateRandom()) // Set injectedSeed to remove randomness (for debugging purposes)
 
             // Screens
             .AddTransient<MainMenuScreen>()
             .AddTransient<GameScreen>()
             .AddTransient<AccusationScreen>()
+            .AddTransient<GameOverScreen>()
         );
 
         var host = _hostBuilder.Build();
         _serviceProvider = host.Services;
+
+        _serviceProvider.GetRequiredService<IGameState>().LoadServiceProvider(_serviceProvider);
 
         _navigationController = _serviceProvider.GetService<NavigationController>();
         _navigationController.Load(Content, GraphicsDevice);

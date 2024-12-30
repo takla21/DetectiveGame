@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Detective.Engine;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -35,7 +36,7 @@ public interface INavigationService
 public class NavigationService : INavigationService
 {
     private readonly IScreenLoader _screenLoader;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IGameState _gameState;
 
     private enum NavigationOperation
     {
@@ -47,10 +48,10 @@ public class NavigationService : INavigationService
     private readonly Queue<(NavigationOperation Type, IScreen Screen)> _navigationStackOperations;
     private readonly Queue<(NavigationOperation Type, IModalScreen Modal)> _modalStackOperations;
 
-    public NavigationService(IScreenLoader screenLoader, IServiceProvider serviceProvider)
+    public NavigationService(IScreenLoader screenLoader, IGameState gameState)
     {
         _screenLoader = screenLoader;
-        _serviceProvider = serviceProvider;
+        _gameState = gameState;
 
         ModalStack = new Stack<IModalScreen>();
         NavigationStack = new Stack<IScreen>();
@@ -114,7 +115,7 @@ public class NavigationService : INavigationService
     public void NavigateTo<TScreen>()
         where TScreen : IScreen
     {
-        var screen = _serviceProvider.GetRequiredService<TScreen>();
+        var screen = _gameState.CurrentServiceProvider.GetRequiredService<TScreen>();
 
         NavigateTo(screen);
     }
@@ -129,7 +130,7 @@ public class NavigationService : INavigationService
 
     public void NavigateAndClear<TScreen>() where TScreen : IScreen
     {
-        var screen = _serviceProvider.GetRequiredService<TScreen>();
+        var screen = _gameState.CurrentServiceProvider.GetRequiredService<TScreen>();
 
         // We cannot manipulate stacks here, since it's still being executed in the update method. Maybe I could use multi-threading in the future.
         _navigationStackOperations.Enqueue((NavigationOperation.Clear, null));
@@ -145,7 +146,7 @@ public class NavigationService : INavigationService
 
     public void ShowModal<TScreen>() where TScreen : IModalScreen
     {
-        var modal = _serviceProvider.GetRequiredService<TScreen>();
+        var modal = _gameState.CurrentServiceProvider.GetRequiredService<TScreen>();
 
         _screenLoader.Load(modal);
 

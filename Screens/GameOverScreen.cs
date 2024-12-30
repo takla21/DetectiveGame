@@ -1,4 +1,5 @@
 ﻿using Detective.Configuration;
+using Detective.Engine;
 using Detective.Navigation;
 using Detective.UI;
 using Microsoft.Xna.Framework;
@@ -14,6 +15,8 @@ public class GameOverScreen : IScreen
 
     private readonly INavigationService _navigationController;
     private readonly ScreenConfiguration _screenConfiguration;
+    private readonly IGameState _gameState;
+
     private readonly string _screenTitle;
 
     private Texture2D _defaultTexture;
@@ -21,12 +24,13 @@ public class GameOverScreen : IScreen
     private Button _backMenuBtn;
     private Vector2 _textSize;
 
-    public GameOverScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, bool hasUserWon)
+    public GameOverScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, IGameState gameState)
     {
+        _gameState = gameState;
         _navigationController = navigationController;
         _screenConfiguration = screenConfiguration;
 
-        _screenTitle = hasUserWon ? "Congrats! You've found the killer!" : "Oh no! The killer got away!";
+        _screenTitle = gameState.CurrentState == GameStateType.Won ? "Congrats! You've found the killer!" : "Oh no! The killer got away!";
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -46,6 +50,8 @@ public class GameOverScreen : IScreen
 
     private void OnBackMenuClick(object sender, ButtonClickEventArgs e)
     {
+        _gameState.Reset();
+
         _navigationController.NavigateAndClear<MainMenuScreen>();
     }
     public void Update(float deltaT, MouseState mouseState)
