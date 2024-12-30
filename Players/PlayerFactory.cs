@@ -29,9 +29,7 @@ public class PlayerFactory : IPlayerFactory
     {
         var players = new List<Player>();
 
-        // TODO : renable killer when they're adapt to IPlayerSchedule
-        //var killer = _random.Next(playerCount);
-        var killer = -1;
+        var killer = _random.Next(playerCount);
 
         var availableNames = new List<string>();
         using (var stream = Microsoft.Xna.Framework.TitleContainer.OpenStream(_namesFilePath))

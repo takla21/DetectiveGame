@@ -130,6 +130,8 @@ namespace Detective.Players
             return moves;
         }
 
+        public abstract double CalculateSuspiciousProbability();
+
         protected void EnterPlace(PlaceInformation place)
         {
             OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(place));

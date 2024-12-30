@@ -80,4 +80,6 @@ public sealed class UnemployedSchedule : SleeperSchedule
 
         return moves;
     }
+
+    public override double CalculateSuspiciousProbability() => IsTimeToSleep && ShouldLeaveOnNextIteration ? 0.25 : 0;
 }

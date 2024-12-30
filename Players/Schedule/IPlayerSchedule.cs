@@ -11,6 +11,8 @@ public interface IPlayerSchedule
 
     public IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace);
 
+    public double CalculateSuspiciousProbability();
+
     public event PlaceUpdateHandler OnPlaceEntered;
 
     public event PlaceUpdateHandler OnPlaceExited;

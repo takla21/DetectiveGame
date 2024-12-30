@@ -13,6 +13,8 @@ public abstract class PlayerRoleBase : IDisposable
     protected Stack<IMove> FutureMoves;
     protected IMove CurrentMove;
 
+    protected float TimeElapsed { get; private set; }
+
     public PlayerRoleBase(string playerId, Vector2 position, IPlayerSchedule schedule)
     {
         PlayerId = playerId;
@@ -66,11 +68,15 @@ public abstract class PlayerRoleBase : IDisposable
                 CurrentMove = null;
             }
 
+            TimeElapsed += deltaT;
+
             return;
         }
 
         // If empty, it's time to generate future moves
         GenerateFutureMoves();
+
+        TimeElapsed += deltaT;
     }
 
     private void InnerOnPlaceEntered(object sender, PlaceUpdateArgs e)

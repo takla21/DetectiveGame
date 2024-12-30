@@ -17,12 +17,8 @@ public sealed class WorkerSchedule : SleeperSchedule
     private bool _isFirstDay;
     private WorkSchedule _currentSchedule;
 
-    private readonly string _id;
-
-    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, string id) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock)
+    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock)
     {
-        _id = id;
-
         _levelService = levelService;
         _workPlace = workPlace;
         _workSchedule = workSchedule.ToArray();
@@ -167,6 +163,23 @@ public sealed class WorkerSchedule : SleeperSchedule
         }
 
         return moves;
+    }
+
+    public override double CalculateSuspiciousProbability()
+    {
+        var probablity = 0d;
+
+        if (_isWorking)
+        {
+            probablity += CurrentPlace != _workPlace.Information ? 0.9d : 0.5d;
+        }
+
+        if (IsTimeToSleep)
+        {
+            probablity += ShouldLeaveOnNextIteration ? 0.25 : 0;
+        }
+
+        return probablity > 1 ? 1 : probablity;
     }
 }
 
