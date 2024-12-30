@@ -11,8 +11,8 @@ public class GameOverScreen : IScreen
 {
     private const int ButtonSize = 100;
 
-    private readonly NavigationController _navigationController;
-    private readonly bool _hasUserWon;
+    private readonly INavigationService _navigationController;
+    private readonly ScreenConfiguration _screenConfiguration;
     private readonly string _screenTitle;
 
     private Texture2D _defaultTexture;
@@ -20,10 +20,10 @@ public class GameOverScreen : IScreen
     private Button _backMenuBtn;
     private Vector2 _textSize;
 
-    public GameOverScreen(NavigationController navigationController, bool hasUserWon)
+    public GameOverScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, bool hasUserWon)
     {
         _navigationController = navigationController;
-        _hasUserWon = hasUserWon;
+        _screenConfiguration = screenConfiguration;
 
         _screenTitle = hasUserWon ? "Congrats! You've found the killer!" : "Oh no! The killer got away!";
     }
@@ -35,7 +35,7 @@ public class GameOverScreen : IScreen
         _defaultTexture = new Texture2D(graphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _backMenuBtn = new Button(_defaultTexture, new Vector2(_navigationController.ScreenWidth * 0.5f - ButtonSize * 0.5f, _navigationController.ScreenHeight * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Quit", _font, Color.Black);
+        _backMenuBtn = new Button(_defaultTexture, new Vector2(_screenConfiguration.Width * 0.5f - ButtonSize * 0.5f, _screenConfiguration.Height * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Quit", _font, Color.Black);
 
         _backMenuBtn.OnClick -= OnBackMenuClick;
         _backMenuBtn.OnClick += OnBackMenuClick;
@@ -45,7 +45,7 @@ public class GameOverScreen : IScreen
 
     private void OnBackMenuClick(object sender, ButtonClickEventArgs e)
     {
-        _navigationController.NavigateAndClear(new MainMenuScreen(_navigationController));
+        _navigationController.NavigateAndClear<MainMenuScreen>();
     }
     public void Update(float deltaT, MouseState mouseState)
     {
@@ -54,7 +54,7 @@ public class GameOverScreen : IScreen
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        spriteBatch.DrawString(_font, _screenTitle, new Vector2(_navigationController.ScreenWidth * 0.5f - _textSize.X * 0.5f, 100.0f), Color.Black);
+        spriteBatch.DrawString(_font, _screenTitle, new Vector2(_screenConfiguration.Width * 0.5f - _textSize.X * 0.5f, 100.0f), Color.Black);
 
         _backMenuBtn.Draw(spriteBatch);
     }

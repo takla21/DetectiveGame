@@ -9,7 +9,8 @@ namespace Detective.Screens;
 
 public sealed class MainMenuScreen : IScreen
 {
-    private readonly NavigationController _navigationController;
+    private readonly INavigationService _navigationService;
+    private readonly ScreenConfiguration _screenConfiguration;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
@@ -17,9 +18,10 @@ public sealed class MainMenuScreen : IScreen
 
     private const int ButtonSize = 100;
 
-    public MainMenuScreen(NavigationController navigationController)
+    public MainMenuScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration)
     {
-        _navigationController = navigationController;
+        _screenConfiguration = screenConfiguration;
+        _navigationService = navigationController;
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -29,7 +31,7 @@ public sealed class MainMenuScreen : IScreen
         _defaultTexture = new Texture2D(graphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _startBtn = new Button(_defaultTexture, new Vector2(_navigationController.ScreenWidth * 0.5f - ButtonSize * 0.5f, _navigationController.ScreenHeight * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Start", _font, Color.Black);
+        _startBtn = new Button(_defaultTexture, new Vector2(_screenConfiguration.Width * 0.5f - ButtonSize * 0.5f, _screenConfiguration.Height * 0.5f - ButtonSize * 0.5f), new Vector2(ButtonSize), Color.LightGray, "Start", _font, Color.Black);
 
         _startBtn.OnClick -= OnStartClick;
         _startBtn.OnClick += OnStartClick;
@@ -37,7 +39,7 @@ public sealed class MainMenuScreen : IScreen
 
     private void OnStartClick(object sender, ButtonClickEventArgs e)
     {
-        _navigationController.NavigateAndClear(new GameScreen(_navigationController));
+        //_navigationService.NavigateAndClear(new GameScreen(_navigationService));
     }
 
     public void Draw(SpriteBatch spriteBatch)

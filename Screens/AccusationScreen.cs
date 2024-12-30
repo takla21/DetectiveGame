@@ -26,22 +26,22 @@ public class AccusationScreen : IModalScreen
     private readonly int _horizontalButtonsPadding;
     private readonly int _verticalButtonsPadding;
 
-    private readonly NavigationController _navigationController;
+    private readonly INavigationService _navigationController;
     private readonly IEnumerable<Player> _playerService;
     private readonly IDictionary<Player, Button> _playersButton;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
 
-    public AccusationScreen(NavigationController navigationController, IEnumerable<Player> players)
+    public AccusationScreen(INavigationService navigationController, IPlayerService playerService, ScreenConfiguration screenConfiguration)
     {
         _navigationController = navigationController;
-        _playerService = players;
+        _playerService = playerService.Players;
 
         _playersButton = new Dictionary<Player, Button>();
 
-        _horizontalModalPadding = (navigationController.ScreenWidth - ModalWidth) / 2;
-        _verticalModalPadding = (navigationController.ScreenHeight - ModalHeight) / 2;
+        _horizontalModalPadding = (screenConfiguration.Width - ModalWidth) / 2;
+        _verticalModalPadding = (screenConfiguration.Height - ModalHeight) / 2;
 
         _horizontalButtonsPadding = (ModalWidth - (ButtonWidth * MaxRows)) / 2;
         _verticalButtonsPadding = (ModalHeight - (ButtonHeight * ButtonPerColumn)) / 2;
@@ -85,7 +85,7 @@ public class AccusationScreen : IModalScreen
         if (player.IsKiller())
         {
             _navigationController.DismissModal();
-            _navigationController.NavigateAndClear(new GameOverScreen(_navigationController, true));
+            _navigationController.NavigateAndClear<GameOverScreen>(); // TODO: Find a way to set hasGameWon = true
         }
         else
         {
@@ -93,7 +93,7 @@ public class AccusationScreen : IModalScreen
             if (tempAttemp++ >= 2)
             {
                 _navigationController.DismissModal();
-                _navigationController.NavigateAndClear(new GameOverScreen(_navigationController, false));
+                _navigationController.NavigateAndClear<GameOverScreen>(); // TODO: Find a way to set hasGameWon = false
             }
             Debug.WriteLine($"{player.Name} is NOT the killer.");
         }

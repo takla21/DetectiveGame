@@ -72,7 +72,7 @@ public class PlayerFactory : IPlayerFactory
                 var defaultShift = new WorkSchedule(isNightShift, start, end);
                 var shifts = Enumerable.Range(0, 7).Select(x => (x == 0 && !isNightShift) || (x == 7 && isNightShift) ? new WorkSchedule(isNightShift) : defaultShift);
 
-                schedule = new WorkerSchedule(_levelService, clock, workPlace, shifts, p.Name);
+                schedule = new WorkerSchedule(_levelService, clock, workPlace, shifts);
             }
 
             // Calculate player position so they all start with a different position while being put in a circle.

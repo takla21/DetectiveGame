@@ -1,5 +1,4 @@
 ﻿using Detective.Navigation;
-using Detective.Players;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -12,20 +11,21 @@ public sealed class GameScreen : IScreen
 {
     private const int Clock_Speed = 1000;
 
-    private readonly NavigationController _navigationController;
-    private readonly IPlayerService playerService;
+    private readonly INavigationService _navigationController;
     private readonly GameEngine _engine;
     private readonly Clock _clock;
+    private readonly ScreenConfiguration _screenConfiguration;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
     private Hub _hub;
 
-    public GameScreen(NavigationController navigationController)
+    public GameScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration)
     {
         _navigationController = navigationController;
+        _screenConfiguration = screenConfiguration;
 
-        _engine = new GameEngine(navigationController.ScreenWidth, navigationController.ScreenHeight);
+        _engine = new GameEngine(screenConfiguration.Width, screenConfiguration.Height);
         _clock = new Clock();
     }
 
@@ -36,7 +36,7 @@ public sealed class GameScreen : IScreen
         _defaultTexture = new Texture2D(graphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _hub = new Hub(_defaultTexture, new Vector2(_navigationController.ScreenWidth * 0.33f, 0), new Vector2(_navigationController.ScreenWidth * 0.33f, 50), new Color(new Vector4(0.25f, 0.25f, 0.25f, 0.75f)), _font);
+        _hub = new Hub(_defaultTexture, new Vector2(_screenConfiguration.Width * 0.33f, 0), new Vector2(_screenConfiguration.Width * 0.33f, 50), new Color(new Vector4(0.25f, 0.25f, 0.25f, 0.75f)), _font);
 
         _hub.OnExpand -= OnExpand;
         _hub.OnExpand += OnExpand;
@@ -46,7 +46,7 @@ public sealed class GameScreen : IScreen
 
     private void OnExpand()
     {
-        _navigationController.ShowModal(new AccusationScreen(_navigationController, _engine.Players));
+        _navigationController.ShowModal<AccusationScreen>();
     }
 
     public void Update(float deltaT, MouseState mouseState)

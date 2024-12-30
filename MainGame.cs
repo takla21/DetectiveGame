@@ -1,16 +1,18 @@
 ﻿using Detective.Navigation;
 using Detective.Screens;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System.Diagnostics;
+using System;
 
 namespace Detective;
 
 public class MainGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
-    private readonly NavigationController _navigationController;
+    private readonly IHostBuilder _hostBuilder;
 
     private SpriteBatch _spriteBatch;
     private Texture2D _defaultTexture;
@@ -21,6 +23,10 @@ public class MainGame : Game
 
     private bool _escapeCooldown;
 
+    private IServiceProvider _serviceProvider;
+    private INavigationService _navigationService;
+    private NavigationController _navigationController;
+
     public MainGame()
     {
         _graphics = new GraphicsDeviceManager(this);
@@ -30,7 +36,19 @@ public class MainGame : Game
 
         _escapeCooldown = false;
 
-        _navigationController = new NavigationController(ScreenWidth, ScreenHeight);
+        _hostBuilder = GenerateHostbuilder();
+    }
+
+    private IHostBuilder GenerateHostbuilder()
+    {
+        var builder = new HostBuilder();
+
+        builder.ConfigureServices(services => services
+            .AddSingleton(new ScreenConfiguration(ScreenWidth, ScreenHeight))
+            .AddSingleton<INavigationService, NavigationService>()
+        );
+
+        return builder;
     }
 
     protected override void Initialize()
@@ -50,10 +68,22 @@ public class MainGame : Game
         _defaultTexture = new Texture2D(GraphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _navigationController.Load(Content, GraphicsDevice);
-        _navigationController.NavigateTo(new MainMenuScreen(_navigationController));
-
         _debugFont = Content.Load<SpriteFont>("default");
+
+        _hostBuilder.ConfigureServices(services => services
+            .AddSingleton<IScreenLoader>(s => new ScreenLoader(Content, GraphicsDevice))
+            .AddSingleton<NavigationController>()
+            .AddTransient<MainMenuScreen>()
+        );
+
+        var host = _hostBuilder.Build();
+        _serviceProvider = host.Services;
+
+        _navigationController = _serviceProvider.GetService<NavigationController>();
+        _navigationController.Load(Content, GraphicsDevice);
+
+        _navigationService = _serviceProvider.GetRequiredService<INavigationService>();
+        _navigationService.NavigateTo<MainMenuScreen>();
     }
 
     protected override void Update(GameTime gameTime)
@@ -80,9 +110,9 @@ public class MainGame : Game
 
     private void OnEscapeClicked()
     {
-        if (_navigationController.NavigationStack.Count > 1 || _navigationController.ModalStack.Count > 0)
+        if (_navigationService.NavigationStack.Count > 1 || _navigationService.ModalStack.Count > 0)
         {
-            _navigationController.NavigateBackOrDismissModal();
+            _navigationService.NavigateBackOrDismissModal();
             return;
         }
 
