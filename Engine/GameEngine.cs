@@ -3,7 +3,7 @@ using Detective.Players;
 using Detective.UI;
 using System;
 
-namespace Detective;
+namespace Detective.Engine;
 
 public interface IGameEngine
 {
