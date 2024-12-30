@@ -1,4 +1,7 @@
-﻿using Detective.Navigation;
+﻿using Detective.Configuration;
+using Detective.Level;
+using Detective.Navigation;
+using Detective.Players;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -12,21 +15,26 @@ public sealed class GameScreen : IScreen
     private const int Clock_Speed = 1000;
 
     private readonly INavigationService _navigationController;
-    private readonly GameEngine _engine;
+    private readonly IGameEngine _engine;
+    private readonly IPlayerService _playerService;
+    private readonly ILevelService _levelService;
     private readonly Clock _clock;
     private readonly ScreenConfiguration _screenConfiguration;
+    private readonly INotificationService __notificationService;
 
     private Texture2D _defaultTexture;
     private SpriteFont _font;
     private Hub _hub;
 
-    public GameScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration)
+    public GameScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, IGameEngine gameEngine, Clock clock, IPlayerService playerService, ILevelService levelService, INotificationService noticicationService)
     {
         _navigationController = navigationController;
         _screenConfiguration = screenConfiguration;
-
-        _engine = new GameEngine(screenConfiguration.Width, screenConfiguration.Height);
-        _clock = new Clock();
+        _engine = gameEngine;
+        _clock = clock;
+        _playerService = playerService;
+        _levelService = levelService;
+        __notificationService = noticicationService;
     }
 
     public void LoadContent(ContentManager content, GraphicsDevice graphicsDevice)
@@ -41,7 +49,7 @@ public sealed class GameScreen : IScreen
         _hub.OnExpand -= OnExpand;
         _hub.OnExpand += OnExpand;
 
-        _engine.Init(content, _clock);
+        _engine.Init();
     }
 
     private void OnExpand()
@@ -61,7 +69,7 @@ public sealed class GameScreen : IScreen
     public void Draw(SpriteBatch spriteBatch)
     {
         // Draw places
-        foreach (var place in _engine.Places)
+        foreach (var place in _levelService.Places)
         {
             var textColor = place.IsDarkTheme ? Color.White : Color.Black;
             spriteBatch.Draw(_defaultTexture, new Rectangle(x: (int)place.Position.X, y: (int)place.Position.Y, width: (int)place.Size.X, height: (int)place.Size.Y), new Color(place.Color.X, place.Color.Y, place.Color.Z));
@@ -79,7 +87,7 @@ public sealed class GameScreen : IScreen
         }
 
         // Draw players
-        foreach (var player in _engine.Players)
+        foreach (var player in _playerService.Players)
         {
             if (!player.IsVisible)
             {
@@ -93,10 +101,8 @@ public sealed class GameScreen : IScreen
         }
 
         // Draw notifications
-        if (_engine.NotificationController.CurrentNotification is not null)
+        if (__notificationService.CurrentNotification is Notification notif)
         {
-            var notif = _engine.NotificationController.CurrentNotification;
-
             Vector2 position = new Vector2(10, 10);
             Color backgroundColor = Color.Black * 0.7f;
             Color textColor = Color.White;
@@ -115,6 +121,5 @@ public sealed class GameScreen : IScreen
     public void Dispose()
     {
         _hub.OnExpand -= OnExpand;
-        _engine.Dispose();
     }
 }

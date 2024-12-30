@@ -1,11 +1,18 @@
-﻿using Detective.Navigation;
+﻿using Detective.Configuration;
+using Detective.Level;
+using Detective.Navigation;
+using Detective.Players;
 using Detective.Screens;
+using Detective.UI;
+using Detective.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.IO;
+using System.Reflection.Metadata;
 
 namespace Detective;
 
@@ -20,12 +27,15 @@ public class MainGame : Game
 
     private const int ScreenWidth = 1920;
     private const int ScreenHeight = 1080;
+    private const int PlayerSize = 20;
+    private const string NameFilesName = "../names.txt";
 
     private bool _escapeCooldown;
 
     private IServiceProvider _serviceProvider;
     private INavigationService _navigationService;
     private NavigationController _navigationController;
+    private IRandomFactory _randomFactory;
 
     public MainGame()
     {
@@ -44,8 +54,17 @@ public class MainGame : Game
         var builder = new HostBuilder();
 
         builder.ConfigureServices(services => services
+            // Configurations
             .AddSingleton(new ScreenConfiguration(ScreenWidth, ScreenHeight))
+            .AddSingleton(new PlayerConfiguration(PlayerSize))
+
+            // Services
             .AddSingleton<INavigationService, NavigationService>()
+            .AddSingleton<IGameEngine, GameEngine>()
+            .AddSingleton<ILevelService, LevelService>()
+            .AddSingleton<IPlayerService, PlayerService>()
+            .AddSingleton<INotificationService, NotificationService>()
+            .AddSingleton<Clock>()
         );
 
         return builder;
@@ -71,9 +90,27 @@ public class MainGame : Game
         _debugFont = Content.Load<SpriteFont>("default");
 
         _hostBuilder.ConfigureServices(services => services
+            // Controllers
             .AddSingleton<IScreenLoader>(s => new ScreenLoader(Content, GraphicsDevice))
             .AddSingleton<NavigationController>()
+            .AddSingleton<IRandomFactory, RSeedRandom>()
+            .AddSingleton(s => s.GetRequiredService<IRandomFactory>().GenerateRandom()) // Set injectedSeed to remove randomness (for debugging purposes)
+            .AddSingleton<IPlayerFactory>(s =>
+            {
+                var nameFilePath = Path.Combine(Content.RootDirectory, NameFilesName);
+                return new PlayerFactory(
+                    s.GetRequiredService<ILevelService>(),
+                    s.GetRequiredService<Clock>(),
+                    s.GetRequiredService<Random>(),
+                    s.GetRequiredService<PlayerConfiguration>(),
+                    nameFilePath
+                );
+            })
+
+            // Screens
             .AddTransient<MainMenuScreen>()
+            .AddTransient<GameScreen>()
+            .AddTransient<AccusationScreen>()
         );
 
         var host = _hostBuilder.Build();
@@ -84,6 +121,8 @@ public class MainGame : Game
 
         _navigationService = _serviceProvider.GetRequiredService<INavigationService>();
         _navigationService.NavigateTo<MainMenuScreen>();
+
+        _randomFactory = _serviceProvider.GetRequiredService<IRandomFactory>();
     }
 
     protected override void Update(GameTime gameTime)
@@ -127,7 +166,7 @@ public class MainGame : Game
 
         _navigationController.Draw(_spriteBatch);
 
-        _spriteBatch.DrawString(_debugFont, Globals.RandomFactory.Seed.ToString(), new Vector2(0, 0), Color.Black);
+        _spriteBatch.DrawString(_debugFont, _randomFactory.Seed.ToString(), new Vector2(0, 0), Color.Black);
 
         _spriteBatch.End();
 

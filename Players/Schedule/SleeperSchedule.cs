@@ -12,6 +12,8 @@ namespace Detective.Players
         private readonly Place _home;
         private readonly LevelInformation _levelInformation;
 
+        protected Random Random { get; }
+
         protected int TimeToSleep { get; private set; }
 
         protected int TimeToWakeUp { get; private set; }
@@ -20,10 +22,11 @@ namespace Detective.Players
 
         protected bool ShouldLeaveOnNextIteration { get; set; }
 
-        public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock)
+        public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, Random random)
         {
             _home = home;
             _levelInformation = levelInformation;
+            Random = random;
 
             _clockSubscription = new ActionDisposable(() => clock.HourChanged -= InnterOnHourChanged);
             clock.HourChanged += InnterOnHourChanged;
@@ -46,9 +49,9 @@ namespace Detective.Players
             OnHourChanged(e.Day, e.Hour, e.Minute);
         }
 
-        protected virtual int SetTimeToSleep() => Globals.Random.Next(21, 24);
+        protected virtual int SetTimeToSleep() => Random.Next(21, 24);
 
-        protected virtual int SetTimeToWakeUp() => Globals.Random.Next(6, 12);
+        protected virtual int SetTimeToWakeUp() => Random.Next(6, 12);
 
         protected virtual void OnHourChanged(int day, int hour, int minute)
         {

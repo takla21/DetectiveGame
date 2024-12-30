@@ -1,4 +1,5 @@
-﻿using Detective.Level;
+﻿using Detective.Configuration;
+using Detective.Level;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,23 +10,27 @@ namespace Detective.Players;
 
 public interface IPlayerFactory
 {
-    IEnumerable<Player> Create(int playerCount, int playerSize, Clock clock);
+    IEnumerable<Player> Create(int playerCount);
 }
 
 public class PlayerFactory : IPlayerFactory
 {
-    private readonly string _namesFilePath;
-    private readonly Random _random;
     private readonly ILevelService _levelService;
+    private readonly Random _random;
+    private readonly Clock _clock;
+    private readonly string _namesFilePath;
+    private readonly PlayerConfiguration _playerConfiguration;
 
-    public PlayerFactory(Random random, string namesFilePath, ILevelService levelService)
+    public PlayerFactory(ILevelService levelService, Clock clock, Random random, PlayerConfiguration playerConfiguration, string namesFilePath)
     {
-        _random = random;
-        _namesFilePath = namesFilePath;
         _levelService = levelService;
+        _clock = clock;
+        _random = random;
+        _playerConfiguration = playerConfiguration;
+        _namesFilePath = namesFilePath;
     }
 
-    public IEnumerable<Player> Create(int playerCount, int playerSize, Clock clock)
+    public IEnumerable<Player> Create(int playerCount)
     {
         var players = new List<Player>();
 
@@ -49,7 +54,7 @@ public class PlayerFactory : IPlayerFactory
                     availableNames[nameChoice],
                     _random.Next(18, 99)
                 ),
-                playerSize
+                _playerConfiguration.PlayerSize
             );
 
             availableNames.RemoveAt(nameChoice);
@@ -60,7 +65,7 @@ public class PlayerFactory : IPlayerFactory
             IPlayerSchedule schedule;
             if (scheduleChoice == 1)
             {
-                schedule = new UnemployedSchedule(_levelService, clock);
+                schedule = new UnemployedSchedule(_levelService, _clock, _random);
             }
             else
             {
@@ -72,19 +77,19 @@ public class PlayerFactory : IPlayerFactory
                 var defaultShift = new WorkSchedule(isNightShift, start, end);
                 var shifts = Enumerable.Range(0, 7).Select(x => (x == 0 && !isNightShift) || (x == 7 && isNightShift) ? new WorkSchedule(isNightShift) : defaultShift);
 
-                schedule = new WorkerSchedule(_levelService, clock, workPlace, shifts);
+                schedule = new WorkerSchedule(_levelService, _clock, workPlace, shifts, _random);
             }
 
             // Calculate player position so they all start with a different position while being put in a circle.
             var radialPosition = (i / (playerCount * 1.0)) * 2 * Math.PI;
 
             // Cast positions into integer to convert back to pixels which improves performance.
-            var x = (int)(playerSize * Math.Cos(radialPosition)) + 1000;
-            var y = (int)(playerSize * Math.Sin(radialPosition)) + 500;
+            var x = (int)(_playerConfiguration.PlayerSize * Math.Cos(radialPosition)) + 1000;
+            var y = (int)(_playerConfiguration.PlayerSize * Math.Sin(radialPosition)) + 500;
 
             if (i == killer)
             {
-                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule);
+                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule, _random);
             }
             else
             {

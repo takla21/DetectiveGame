@@ -1,4 +1,5 @@
 ﻿using Detective.Level;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -9,7 +10,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
 {
     private readonly ILevelService _levelService;
 
-    public UnemployedSchedule(ILevelService levelService, Clock clock) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock)
+    public UnemployedSchedule(ILevelService levelService, Clock clock, Random random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
     {
         _levelService = levelService;
     }
@@ -41,7 +42,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
         if (selectedPlace != null)
         {
             // Add idle move after moving
-            moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
+            moves.Add(new Idle((float)Random.NextDouble() * 10));
 
             // Add invisiblity when entering into place.
             moves.Add(new ExecuteAction(() =>
@@ -54,7 +55,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
         else
         {
             // Add idle move after moving
-            moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
+            moves.Add(new Idle((float)Random.NextDouble() * 10));
         }
 
         moves.AddRange(

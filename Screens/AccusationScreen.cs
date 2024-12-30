@@ -1,11 +1,11 @@
-﻿using Detective.Navigation;
+﻿using Detective.Configuration;
+using Detective.Navigation;
 using Detective.Players;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 

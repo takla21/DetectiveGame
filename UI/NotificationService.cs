@@ -1,13 +1,21 @@
-﻿using Microsoft.Xna.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Detective.UI;
 
-public class NotificationController
+public interface INotificationService
+{
+    public Notification CurrentNotification { get; }
+
+    public void Enqueue(string message, float duration);
+
+    public void Update(float dt);
+}
+
+public class NotificationService : INotificationService
 {
     private Queue<Notification> _queue;
 
-    public NotificationController()
+    public NotificationService()
     {
         _queue = new Queue<Notification>();
     }
@@ -19,7 +27,7 @@ public class NotificationController
         _queue.Enqueue(new Notification(message, duration));
     }
 
-    public void GetCurrentNotification(float dt)
+    public void Update(float dt)
     {
         if (CurrentNotification != null)
         {

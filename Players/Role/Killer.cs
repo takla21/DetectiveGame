@@ -17,10 +17,10 @@ public sealed class Killer : PlayerRoleBase
     private bool _didUseScheduleMoves;
     private float _timeUntilEndOfCooldown;
 
-    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule) : base(playerId, position, schedule)
+    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule, Random random) : base(playerId, position, schedule)
     {
         _levelService = levelService;
-        _random = Globals.Random;
+        _random = random;
 
         _currentState = KillerState.Calm;
         _didUseScheduleMoves = false;

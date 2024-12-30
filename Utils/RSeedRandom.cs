@@ -7,7 +7,7 @@ public interface IRandomFactory
 {
     public int Seed { get; }
 
-    public Random Random { get; }
+    public Random GenerateRandom(int? injectedSeed = null);
 }
 
 public class RSeedRandom : IRandomFactory
@@ -16,7 +16,9 @@ public class RSeedRandom : IRandomFactory
     [DllImport("TrulyRandom.dll", CallingConvention = CallingConvention.Cdecl)]
     private static extern int GetRdseed(out ulong value);
 
-    public RSeedRandom(int? injectedSeed = null)
+    public int Seed { get; private set; }
+
+    public Random GenerateRandom(int? injectedSeed = null)
     {
         if (injectedSeed is int seed)
         {
@@ -28,10 +30,6 @@ public class RSeedRandom : IRandomFactory
             Seed = (int)rdSeed;
         }
 
-        Random = new Random(Seed);
+        return new Random(Seed);
     }
-
-    public Random Random { get; }
-
-    public int Seed { get; }
 }

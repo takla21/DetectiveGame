@@ -1,4 +1,5 @@
-﻿using Detective.Players;
+﻿using Detective.Configuration;
+using Detective.Players;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,13 +15,13 @@ public interface ILevelService
 
     public LevelInformation Information { get; }
 
-    public void Initialize(int playerSize);
+    public void Initialize();
 
     public LevelChoice PickPointOrPlace();
 
-    public Vector2 PickPointInLevel(Random random = null);
+    public Vector2 PickPointInLevel();
 
-    public PlaceInformation PickPlace(Random random = null);
+    public PlaceInformation PickPlace();
 
     public void EnterPlayer(Player player, PlaceInformation placeInformation);
 
@@ -31,20 +32,22 @@ public record LevelChoice(Vector2 SelectedPoint, PlaceInformation SelectedPlace)
 
 public class LevelService : ILevelService
 {
+    private readonly ScreenConfiguration _screenConfiguration;
+    private readonly PlayerConfiguration _playerConfiguration;
+    private readonly Random _random;
+
     private readonly List<Place> _places;
 
-    private readonly int _width;
-    private readonly int _height;
-
-    public LevelService(int width, int height)
+    public LevelService(ScreenConfiguration screenConfiguration, PlayerConfiguration playerConfiguration, Random random)
     {
-        _width = width;
-        _height = height;
+        _screenConfiguration = screenConfiguration;
+        _playerConfiguration = playerConfiguration;
+        _random = random;
 
         _places = new List<Place>();
     }
 
-    public void Initialize(int playerSize)
+    public void Initialize()
     {
         var placeSize = new Vector2(500, 400);
 
@@ -63,9 +66,9 @@ public class LevelService : ILevelService
             new Place(
                 information: new PlaceInformation(
                     name: "Place 2",
-                    position: new Vector2(_width - placeSize.X, 0),
+                    position: new Vector2(_screenConfiguration.Width - placeSize.X, 0),
                     size: placeSize,
-                    entrancePosition: new Vector2((int)(_width - placeSize.X * 0.5), placeSize.Y)
+                    entrancePosition: new Vector2((int)(_screenConfiguration.Width - placeSize.X * 0.5), placeSize.Y)
                 ),
                 color: new Vector3(0, 1, 0)
             )
@@ -74,9 +77,9 @@ public class LevelService : ILevelService
             new Place(
                 information: new PlaceInformation(
                     name: "Place 3",
-                    position: new Vector2(0, _height - placeSize.Y),
+                    position: new Vector2(0, _screenConfiguration.Height - placeSize.Y),
                     size: placeSize,
-                    entrancePosition: new Vector2(250, _height - placeSize.Y - playerSize)
+                    entrancePosition: new Vector2(250, _screenConfiguration.Height - placeSize.Y - _playerConfiguration.PlayerSize)
                 ),
                 color: new Vector3(0, 0, 1),
                 isDarkTheme: true
@@ -86,9 +89,9 @@ public class LevelService : ILevelService
             new Place(
                 information: new PlaceInformation(
                     type: PlaceType.Prison,
-                    position: new Vector2(_width - placeSize.X, _height - placeSize.Y),
+                    position: new Vector2(_screenConfiguration.Width - placeSize.X, _screenConfiguration.Height - placeSize.Y),
                     size: placeSize,
-                    entrancePosition: new Vector2((int)(_width - placeSize.X * 0.5), _height - placeSize.Y - playerSize)
+                    entrancePosition: new Vector2((int)(_screenConfiguration.Width - placeSize.X * 0.5), _screenConfiguration.Height - placeSize.Y - _playerConfiguration.PlayerSize)
                 ),
                 color: new Vector3(179 / 255.0f, 179 / 255.0f, 179 / 255.0f),
                 isDarkTheme: false
@@ -97,8 +100,8 @@ public class LevelService : ILevelService
 
         Information = new LevelInformation(
             _places.Select(x => x.Information),
-            new Vector2(_width, _height),
-            playerSize
+            new Vector2(_screenConfiguration.Width, _screenConfiguration.Height),
+            _playerConfiguration.PlayerSize
         );
     }
 
@@ -111,36 +114,33 @@ public class LevelService : ILevelService
 
     public LevelChoice PickPointOrPlace()
     {
-        var rand = Globals.Random;
-        var draw = rand.Next(2);
+        var draw = _random.Next(2);
         if (draw == 1)
         {
-            var selectedPlace = PickPlace(rand);
+            var selectedPlace = PickPlace();
             return new LevelChoice(selectedPlace.EntrancePosition, selectedPlace);
         }
         else
         {
-            var selectedPoint = PickPointInLevel(rand);
+            var selectedPoint = PickPointInLevel();
             return new LevelChoice(selectedPoint, null);
         }
     }
 
-    public Vector2 PickPointInLevel(Random random = null)
+    public Vector2 PickPointInLevel()
     {
-        var rand = random ?? Globals.Random;
         var selectedPoint = default(Vector2);
         do
         {
-            selectedPoint = new Vector2(rand.Next(_width), rand.Next(_height));
+            selectedPoint = new Vector2(_random.Next(_screenConfiguration.Width), _random.Next(_screenConfiguration.Height));
         } while (Information.InvalidPositions.Contains(selectedPoint));
 
         return selectedPoint;
     }
 
-    public PlaceInformation PickPlace(Random random = null)
+    public PlaceInformation PickPlace()
     {
-        var rand = random ?? Globals.Random;
-        var draw = rand.Next(_places.Count);
+        var draw = _random.Next(_places.Count);
         var place = _places[draw];
         return place.Information;
     }

@@ -1,4 +1,5 @@
-﻿using Detective.Navigation;
+﻿using Detective.Configuration;
+using Detective.Navigation;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -39,7 +40,7 @@ public sealed class MainMenuScreen : IScreen
 
     private void OnStartClick(object sender, ButtonClickEventArgs e)
     {
-        //_navigationService.NavigateAndClear(new GameScreen(_navigationService));
+        _navigationService.NavigateAndClear<GameScreen>();
     }
 
     public void Draw(SpriteBatch spriteBatch)

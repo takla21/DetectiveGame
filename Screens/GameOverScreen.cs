@@ -1,4 +1,5 @@
-﻿using Detective.Navigation;
+﻿using Detective.Configuration;
+using Detective.Navigation;
 using Detective.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

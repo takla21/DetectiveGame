@@ -1,48 +1,47 @@
-﻿using Detective.Level;
+﻿using Detective.Configuration;
+using Detective.Level;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
 
 namespace Detective.Players;
 
-public interface IPlayerService : IDisposable
+public interface IPlayerService
 {
     public IEnumerable<Player> Players { get; }
 
     public event PlayerDeathEventHandler OnDeath;
 
-    public void Initialize(int playerCount, string pathToNames, Clock clock);
+    public void Initialize(int playerCount);
 
     public void Update(float deltaT);
 }
 
-public class PlayerService : IPlayerService
+public class PlayerService : IPlayerService, IDisposable
 {
     private readonly ILevelService _levelService;
+    private readonly IPlayerFactory _playerFactory;
+    private readonly PlayerConfiguration _playerConfiguration;
+
     private readonly List<Player> _players;
     private readonly List<Player> _playersKilled;
 
-    private readonly int _playerSize;
-
-    public PlayerService(ILevelService levelService, int playerSize)
+    public PlayerService(ILevelService levelService, PlayerConfiguration playerConfiguration, IPlayerFactory playerFactory)
     {
+        _levelService = levelService;
+        _playerConfiguration = playerConfiguration;
+        _playerFactory = playerFactory;
+
         _players = new List<Player>();
         _playersKilled = new List<Player>();
-        _playerSize = playerSize;
-
-        _levelService = levelService;
     }
 
     public IEnumerable<Player> Players => _players;
 
     public event PlayerDeathEventHandler OnDeath;
 
-    public void Initialize(int playerCount, string pathToNames, Clock clock)
+    public void Initialize(int playerCount)
     {
-        var playerFactory = new PlayerFactory(Globals.Random, pathToNames, _levelService);
-
-        var results = playerFactory.Create(playerCount, _playerSize, clock);
+        var results = _playerFactory.Create(playerCount);
 
         foreach (var player in results)
         {

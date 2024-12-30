@@ -17,7 +17,7 @@ public sealed class WorkerSchedule : SleeperSchedule
     private bool _isFirstDay;
     private WorkSchedule _currentSchedule;
 
-    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock)
+    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, Random random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
     {
         _levelService = levelService;
         _workPlace = workPlace;
@@ -78,12 +78,12 @@ public sealed class WorkerSchedule : SleeperSchedule
 
     protected override int SetTimeToSleep()
     {
-        return _currentSchedule.IsNightShift ? Globals.Random.Next(_currentSchedule.EndHour + 1, 7) : base.SetTimeToSleep();
+        return _currentSchedule.IsNightShift ? Random.Next(_currentSchedule.EndHour + 1, 7) : base.SetTimeToSleep();
     }
 
     protected override int SetTimeToWakeUp()
     {
-        return _currentSchedule.IsNightShift ? Globals.Random.Next(12, _currentSchedule.StartHour - 1) : base.SetTimeToWakeUp();
+        return _currentSchedule.IsNightShift ? Random.Next(12, _currentSchedule.StartHour - 1) : base.SetTimeToWakeUp();
     }
 
     public override IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
@@ -124,7 +124,7 @@ public sealed class WorkerSchedule : SleeperSchedule
             // Add idle move after moving to a non work place point.
             if (!_isWorking)
             {
-                moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
+                moves.Add(new Idle((float)Random.NextDouble() * 10));
             }
 
             // Add invisiblity when entering into place.
@@ -138,7 +138,7 @@ public sealed class WorkerSchedule : SleeperSchedule
         else
         {
             // Add idle move after moving
-            moves.Add(new Idle((float)Globals.Random.NextDouble() * 10));
+            moves.Add(new Idle((float)Random.NextDouble() * 10));
         }
 
         moves.AddRange(
