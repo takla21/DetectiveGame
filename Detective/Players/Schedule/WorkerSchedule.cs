@@ -1,9 +1,9 @@
 ﻿using Detective.Level;
+using Detective.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Windows.Markup;
 
 namespace Detective.Players;
 
@@ -17,7 +17,7 @@ public sealed class WorkerSchedule : SleeperSchedule
     private bool _isFirstDay;
     private WorkSchedule _currentSchedule;
 
-    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, Random random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
+    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, IRandom random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
     {
         _levelService = levelService;
         _workPlace = workPlace;

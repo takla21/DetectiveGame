@@ -1,6 +1,6 @@
 ﻿using Detective.Configuration;
 using Detective.Players;
-using System;
+using Detective.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -34,11 +34,11 @@ public class LevelService : ILevelService
 {
     private readonly ScreenConfiguration _screenConfiguration;
     private readonly PlayerConfiguration _playerConfiguration;
-    private readonly Random _random;
+    private readonly IRandom _random;
 
     private readonly List<Place> _places;
 
-    public LevelService(ScreenConfiguration screenConfiguration, PlayerConfiguration playerConfiguration, Random random)
+    public LevelService(ScreenConfiguration screenConfiguration, PlayerConfiguration playerConfiguration, IRandom random)
     {
         _screenConfiguration = screenConfiguration;
         _playerConfiguration = playerConfiguration;

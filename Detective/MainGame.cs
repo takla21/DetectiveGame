@@ -23,7 +23,6 @@ public class MainGame : Game
 
     private SpriteBatch _spriteBatch;
     private Texture2D _defaultTexture;
-    private SpriteFont _debugFont;
 
     private const int ScreenWidth = 1920;
     private const int ScreenHeight = 1080;
@@ -35,7 +34,6 @@ public class MainGame : Game
     private IServiceProvider _serviceProvider;
     private INavigationService _navigationService;
     private NavigationController _navigationController;
-    private IRandomFactory _randomFactory;
 
     public MainGame()
     {
@@ -88,8 +86,6 @@ public class MainGame : Game
         _defaultTexture = new Texture2D(GraphicsDevice, 1, 1);
         _defaultTexture.SetData([Color.White]);
 
-        _debugFont = Content.Load<SpriteFont>("default");
-
         _hostBuilder.ConfigureServices(services => services
             // Controllers
             .AddSingleton<IScreenLoader>(s => new ScreenLoader(Content, GraphicsDevice))
@@ -101,7 +97,7 @@ public class MainGame : Game
                 return new PlayerFactory(
                     s.GetRequiredService<ILevelService>(),
                     s.GetRequiredService<Clock>(),
-                    s.GetRequiredService<Random>(),
+                    s.GetRequiredService<IRandom>(),
                     s.GetRequiredService<PlayerConfiguration>(),
                     nameFilePath
                 );
@@ -125,8 +121,6 @@ public class MainGame : Game
 
         _navigationService = _serviceProvider.GetRequiredService<INavigationService>();
         _navigationService.NavigateTo<MainMenuScreen>();
-
-        _randomFactory = _serviceProvider.GetRequiredService<IRandomFactory>();
     }
 
     protected override void Update(GameTime gameTime)
@@ -169,8 +163,6 @@ public class MainGame : Game
         _spriteBatch.Begin();
 
         _navigationController.Draw(_spriteBatch);
-
-        _spriteBatch.DrawString(_debugFont, _randomFactory.Seed.ToString(), new Vector2(0, 0), Color.Black);
 
         _spriteBatch.End();
 

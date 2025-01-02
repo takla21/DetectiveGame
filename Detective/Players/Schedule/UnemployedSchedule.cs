@@ -1,5 +1,5 @@
 ﻿using Detective.Level;
-using System;
+using Detective.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -10,7 +10,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
 {
     private readonly ILevelService _levelService;
 
-    public UnemployedSchedule(ILevelService levelService, Clock clock, Random random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
+    public UnemployedSchedule(ILevelService levelService, Clock clock, IRandom random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
     {
         _levelService = levelService;
     }

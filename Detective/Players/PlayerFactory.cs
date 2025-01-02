@@ -1,5 +1,6 @@
 ﻿using Detective.Configuration;
 using Detective.Level;
+using Detective.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,12 +17,12 @@ public interface IPlayerFactory
 public class PlayerFactory : IPlayerFactory
 {
     private readonly ILevelService _levelService;
-    private readonly Random _random;
+    private readonly IRandom _random;
     private readonly Clock _clock;
     private readonly string _namesFilePath;
     private readonly PlayerConfiguration _playerConfiguration;
 
-    public PlayerFactory(ILevelService levelService, Clock clock, Random random, PlayerConfiguration playerConfiguration, string namesFilePath)
+    public PlayerFactory(ILevelService levelService, Clock clock, IRandom random, PlayerConfiguration playerConfiguration, string namesFilePath)
     {
         _levelService = levelService;
         _clock = clock;

@@ -1,4 +1,5 @@
 ﻿using Detective.Level;
+using Detective.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Detective.Players;
 public sealed class Killer : PlayerRoleBase
 {
     private readonly ILevelService _levelService;
-    private readonly Random _random;
+    private readonly IRandom _random;
 
     private PlaceInformation _currentPlace;
 
@@ -17,7 +18,7 @@ public sealed class Killer : PlayerRoleBase
     private bool _didUseScheduleMoves;
     private float _timeUntilEndOfCooldown;
 
-    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule, Random random) : base(playerId, position, schedule)
+    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule, IRandom random) : base(playerId, position, schedule)
     {
         _levelService = levelService;
         _random = random;

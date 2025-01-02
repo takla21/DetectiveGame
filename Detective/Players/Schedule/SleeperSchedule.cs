@@ -4,150 +4,149 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Detective.Players
+namespace Detective.Players;
+
+public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
 {
-    public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
+    private readonly IDisposable _clockSubscription;
+    private readonly Place _home;
+    private readonly LevelInformation _levelInformation;
+
+    protected IRandom Random { get; }
+
+    protected int TimeToSleep { get; private set; }
+
+    protected int TimeToWakeUp { get; private set; }
+
+    protected bool IsTimeToSleep { get; private set; }
+
+    protected bool ShouldLeaveOnNextIteration { get; set; }
+
+    public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, IRandom random)
     {
-        private readonly IDisposable _clockSubscription;
-        private readonly Place _home;
-        private readonly LevelInformation _levelInformation;
+        _home = home;
+        _levelInformation = levelInformation;
+        Random = random;
 
-        protected Random Random { get; }
+        _clockSubscription = new ActionDisposable(() => clock.HourChanged -= InnterOnHourChanged);
+        clock.HourChanged += InnterOnHourChanged;
 
-        protected int TimeToSleep { get; private set; }
+        IsTimeToSleep = false;
 
-        protected int TimeToWakeUp { get; private set; }
+        // Set it to a dumb value to ensure that it has been initialized properly (child ctor called).
+        TimeToSleep = -1;
+        TimeToWakeUp = -1;
+    }
 
-        protected bool IsTimeToSleep { get; private set; }
+    public PlaceInformation CurrentPlace { get; protected set; }
 
-        protected bool ShouldLeaveOnNextIteration { get; set; }
+    public event PlaceUpdateHandler OnPlaceEntered;
+    public event PlaceUpdateHandler OnPlaceExited;
+    public event Action OnClearMoves;
 
-        public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, Random random)
+    private void InnterOnHourChanged(object sender, ClockTickEventArgs e)
+    {
+        OnHourChanged(e.Day, e.Hour, e.Minute);
+    }
+
+    protected virtual int SetTimeToSleep() => Random.Next(21, 24);
+
+    protected virtual int SetTimeToWakeUp() => Random.Next(6, 12);
+
+    protected virtual void OnHourChanged(int day, int hour, int minute)
+    {
+        if (TimeToSleep == -1 || TimeToWakeUp == -1)
         {
-            _home = home;
-            _levelInformation = levelInformation;
-            Random = random;
-
-            _clockSubscription = new ActionDisposable(() => clock.HourChanged -= InnterOnHourChanged);
-            clock.HourChanged += InnterOnHourChanged;
-
-            IsTimeToSleep = false;
-
-            // Set it to a dumb value to ensure that it has been initialized properly (child ctor called).
-            TimeToSleep = -1;
-            TimeToWakeUp = -1;
+            TimeToSleep = SetTimeToSleep();
+            TimeToWakeUp = SetTimeToWakeUp();
         }
 
-        public PlaceInformation CurrentPlace { get; protected set; }
+        var previousState = IsTimeToSleep;
+        IsTimeToSleep = CheckIsTimeToSleep(currentHour: hour);
 
-        public event PlaceUpdateHandler OnPlaceEntered;
-        public event PlaceUpdateHandler OnPlaceExited;
-        public event Action OnClearMoves;
-
-        private void InnterOnHourChanged(object sender, ClockTickEventArgs e)
+        if (IsTimeToSleep != previousState)
         {
-            OnHourChanged(e.Day, e.Hour, e.Minute);
-        }
+            if (IsTimeToSleep)
+            {
+                ClearMoves();
+            }
 
-        protected virtual int SetTimeToSleep() => Random.Next(21, 24);
-
-        protected virtual int SetTimeToWakeUp() => Random.Next(6, 12);
-
-        protected virtual void OnHourChanged(int day, int hour, int minute)
-        {
-            if (TimeToSleep == -1 || TimeToWakeUp == -1)
+            if (!IsTimeToSleep)
             {
                 TimeToSleep = SetTimeToSleep();
                 TimeToWakeUp = SetTimeToWakeUp();
             }
 
-            var previousState = IsTimeToSleep;
-            IsTimeToSleep = CheckIsTimeToSleep(currentHour: hour);
+            ShouldLeaveOnNextIteration = IsTimeToSleep ? ShouldLeaveOnNextIteration : true;
+        }
+    }
 
-            if (IsTimeToSleep != previousState)
-            {
-                if (IsTimeToSleep)
-                {
-                    ClearMoves();
-                }
+    protected void ClearMoves()
+    {
+        OnClearMoves?.Invoke();
+    }
 
-                if (!IsTimeToSleep)
-                {
-                    TimeToSleep = SetTimeToSleep();
-                    TimeToWakeUp = SetTimeToWakeUp();
-                }
+    protected virtual bool CheckIsTimeToSleep(int currentHour)
+    {
+        return currentHour >= TimeToSleep || currentHour <= TimeToWakeUp;
+    }
 
-                ShouldLeaveOnNextIteration = IsTimeToSleep ? ShouldLeaveOnNextIteration : true;
-            }
+    public virtual IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
+    {
+        var moves = new List<IMove>();
+
+        if (CurrentPlace != null && CurrentPlace.Type == PlaceType.Houses)
+        {
+            return Array.Empty<IMove>();
         }
 
-        protected void ClearMoves()
+        var target = _home.Information.EntrancePosition;
+        var selectedPlace = _home.Information;
+
+        // Add invisiblity when entering into place.
+        moves.Add(new ExecuteAction(() =>
         {
-            OnClearMoves?.Invoke();
-        }
+            EnterPlace(selectedPlace);
+            CurrentPlace = selectedPlace;
+        }, shouldBeVisible: false));
 
-        protected virtual bool CheckIsTimeToSleep(int currentHour)
+        moves.AddRange(
+            AStar.GenerateMoves(
+                startPoint: currentPosition,
+                target: target,
+                levelWidth: (int)_levelInformation.LevelSize.X,
+                levelHeight: (int)_levelInformation.LevelSize.Y,
+                invalidPoints: _levelInformation.InvalidPositions
+        ));
+
+        if (ShouldLeaveOnNextIteration)
         {
-            return currentHour >= TimeToSleep || currentHour <= TimeToWakeUp;
-        }
-
-        public virtual IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
-        {
-            var moves = new List<IMove>();
-
-            if (CurrentPlace != null && CurrentPlace.Type == PlaceType.Houses)
-            {
-                return Array.Empty<IMove>();
-            }
-
-            var target = _home.Information.EntrancePosition;
-            var selectedPlace = _home.Information;
-
-            // Add invisiblity when entering into place.
             moves.Add(new ExecuteAction(() =>
             {
-                EnterPlace(selectedPlace);
-                CurrentPlace = selectedPlace;
-            }, shouldBeVisible: false));
+                ExitPlace(CurrentPlace);
+                CurrentPlace = null;
+            }, shouldBeVisible: true));
 
-            moves.AddRange(
-                AStar.GenerateMoves(
-                    startPoint: currentPosition,
-                    target: target,
-                    levelWidth: (int)_levelInformation.LevelSize.X,
-                    levelHeight: (int)_levelInformation.LevelSize.Y,
-                    invalidPoints: _levelInformation.InvalidPositions
-            ));
-
-            if (ShouldLeaveOnNextIteration)
-            {
-                moves.Add(new ExecuteAction(() =>
-                {
-                    ExitPlace(CurrentPlace);
-                    CurrentPlace = null;
-                }, shouldBeVisible: true));
-
-                ShouldLeaveOnNextIteration = false;
-            }
-
-            return moves;
+            ShouldLeaveOnNextIteration = false;
         }
 
-        public abstract double CalculateSuspiciousProbability();
+        return moves;
+    }
 
-        protected void EnterPlace(PlaceInformation place)
-        {
-            OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(place));
-        }
+    public abstract double CalculateSuspiciousProbability();
 
-        protected void ExitPlace(PlaceInformation place)
-        {
-            OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(place));
-        }
+    protected void EnterPlace(PlaceInformation place)
+    {
+        OnPlaceEntered?.Invoke(this, new PlaceUpdateArgs(place));
+    }
 
-        public void Dispose()
-        {
-            _clockSubscription.Dispose();
-        }
+    protected void ExitPlace(PlaceInformation place)
+    {
+        OnPlaceExited?.Invoke(this, new PlaceUpdateArgs(place));
+    }
+
+    public void Dispose()
+    {
+        _clockSubscription.Dispose();
     }
 }
