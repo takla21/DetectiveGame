@@ -6,3 +6,5 @@
 
 **/bin
 **/obj
+/Detective/Content/obj/DesktopGL/net9.0/Content/.mgstats
+/Detective/Content/obj/DesktopGL/net9.0/Content/default.mgcontent
