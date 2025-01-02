@@ -10,7 +10,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
 {
     private readonly ILevelService _levelService;
 
-    public UnemployedSchedule(ILevelService levelService, Clock clock, IRandom random) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random)
+    public UnemployedSchedule(ILevelService levelService, Clock clock, IRandom random, ILevelPathFinding levelPathFinding) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random, levelPathFinding)
     {
         _levelService = levelService;
     }
@@ -59,7 +59,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
         }
 
         moves.AddRange(
-            AStar.GenerateMoves(
+            LevelPathFinding.GenerateMoves(
                 startPoint: currentPosition,
                 target: target,
                 levelWidth: (int)_levelService.Information.LevelSize.X,

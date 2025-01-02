@@ -64,6 +64,7 @@ public class MainGame : Game
             .AddScoped<ILevelService, LevelService>()
             .AddScoped<IPlayerService, PlayerService>()
             .AddScoped<Clock>()
+            .AddSingleton<ILevelPathFinding, AStarLevelPathFinding>()
         );
 
         return builder;
@@ -98,6 +99,7 @@ public class MainGame : Game
                     s.GetRequiredService<ILevelService>(),
                     s.GetRequiredService<Clock>(),
                     s.GetRequiredService<IRandom>(),
+                    s.GetRequiredService<ILevelPathFinding>(),
                     s.GetRequiredService<PlayerConfiguration>(),
                     nameFilePath
                 );

@@ -5,9 +5,14 @@ using System.Numerics;
 
 namespace Detective;
 
-public static class AStar
+public interface ILevelPathFinding
 {
-    public static IEnumerable<IMove> GenerateMoves(Vector2 startPoint, Vector2 target, int levelWidth, int levelHeight, ISet<Vector2> invalidPoints)
+    public IEnumerable<IMove> GenerateMoves(Vector2 startPoint, Vector2 target, int levelWidth, int levelHeight, ISet<Vector2> invalidPoints);
+}
+
+public class AStarLevelPathFinding : ILevelPathFinding
+{
+    public IEnumerable<IMove> GenerateMoves(Vector2 startPoint, Vector2 target, int levelWidth, int levelHeight, ISet<Vector2> invalidPoints)
     {
         var queue = new PriorityQueue<Vector2, float>();
         queue.Enqueue(startPoint, 0);

@@ -14,6 +14,8 @@ public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
 
     protected IRandom Random { get; }
 
+    protected ILevelPathFinding LevelPathFinding { get; }
+
     protected int TimeToSleep { get; private set; }
 
     protected int TimeToWakeUp { get; private set; }
@@ -22,11 +24,13 @@ public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
 
     protected bool ShouldLeaveOnNextIteration { get; set; }
 
-    public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, IRandom random)
+    public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, IRandom random, ILevelPathFinding levelPathFinding)
     {
         _home = home;
         _levelInformation = levelInformation;
+
         Random = random;
+        LevelPathFinding = levelPathFinding;
 
         _clockSubscription = new ActionDisposable(() => clock.HourChanged -= InnterOnHourChanged);
         clock.HourChanged += InnterOnHourChanged;
@@ -111,7 +115,7 @@ public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
         }, shouldBeVisible: false));
 
         moves.AddRange(
-            AStar.GenerateMoves(
+            LevelPathFinding.GenerateMoves(
                 startPoint: currentPosition,
                 target: target,
                 levelWidth: (int)_levelInformation.LevelSize.X,

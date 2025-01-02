@@ -19,14 +19,16 @@ public class PlayerFactory : IPlayerFactory
     private readonly ILevelService _levelService;
     private readonly IRandom _random;
     private readonly Clock _clock;
+    private readonly ILevelPathFinding _levelPathFinding;
     private readonly string _namesFilePath;
     private readonly PlayerConfiguration _playerConfiguration;
 
-    public PlayerFactory(ILevelService levelService, Clock clock, IRandom random, PlayerConfiguration playerConfiguration, string namesFilePath)
+    public PlayerFactory(ILevelService levelService, Clock clock, IRandom random, ILevelPathFinding levelPathFinding, PlayerConfiguration playerConfiguration, string namesFilePath)
     {
         _levelService = levelService;
         _clock = clock;
         _random = random;
+        _levelPathFinding = levelPathFinding;
         _playerConfiguration = playerConfiguration;
         _namesFilePath = namesFilePath;
     }
@@ -66,7 +68,7 @@ public class PlayerFactory : IPlayerFactory
             IPlayerSchedule schedule;
             if (scheduleChoice == 1)
             {
-                schedule = new UnemployedSchedule(_levelService, _clock, _random);
+                schedule = new UnemployedSchedule(_levelService, _clock, _random, _levelPathFinding);
             }
             else
             {
@@ -78,7 +80,7 @@ public class PlayerFactory : IPlayerFactory
                 var defaultShift = new WorkSchedule(isNightShift, start, end);
                 var shifts = Enumerable.Range(0, 7).Select(x => (x == 0 && !isNightShift) || (x == 7 && isNightShift) ? new WorkSchedule(isNightShift) : defaultShift);
 
-                schedule = new WorkerSchedule(_levelService, _clock, workPlace, shifts, _random);
+                schedule = new WorkerSchedule(_levelService, _clock, workPlace, shifts, _random, _levelPathFinding);
             }
 
             // Calculate player position so they all start with a different position while being put in a circle.
@@ -90,7 +92,7 @@ public class PlayerFactory : IPlayerFactory
 
             if (i == killer)
             {
-                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule, _random);
+                role = new Killer(p.Id, new Vector2(x, y), _levelService, schedule, _random, _levelPathFinding);
             }
             else
             {

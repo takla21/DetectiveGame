@@ -11,6 +11,7 @@ public sealed class Killer : PlayerRoleBase
 {
     private readonly ILevelService _levelService;
     private readonly IRandom _random;
+    private readonly ILevelPathFinding _levelPathFinding;
 
     private PlaceInformation _currentPlace;
 
@@ -18,10 +19,11 @@ public sealed class Killer : PlayerRoleBase
     private bool _didUseScheduleMoves;
     private float _timeUntilEndOfCooldown;
 
-    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule, IRandom random) : base(playerId, position, schedule)
+    public Killer(string playerId, Vector2 position, ILevelService levelService, IPlayerSchedule schedule, IRandom random, ILevelPathFinding levelPathFinding) : base(playerId, position, schedule)
     {
         _levelService = levelService;
         _random = random;
+        _levelPathFinding = levelPathFinding;
 
         _currentState = KillerState.Calm;
         _didUseScheduleMoves = false;
@@ -104,7 +106,7 @@ public sealed class Killer : PlayerRoleBase
             EnterPlace(selectedPlace);
         }, shouldBeVisible: false));
 
-        moves.AddRange(AStar.GenerateMoves(
+        moves.AddRange(_levelPathFinding.GenerateMoves(
             startPoint: Position,
             target: target,
             levelWidth: (int)_levelService.Information.LevelSize.X,
