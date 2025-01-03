@@ -10,7 +10,7 @@ public sealed class UnemployedSchedule : SleeperSchedule
 {
     private readonly ILevelService _levelService;
 
-    public UnemployedSchedule(ILevelService levelService, Clock clock, IRandom random, ILevelPathFinding levelPathFinding) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random, levelPathFinding)
+    public UnemployedSchedule(ILevelService levelService, IClock clock, IRandom random, ILevelPathFinding levelPathFinding) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random, levelPathFinding)
     {
         _levelService = levelService;
     }

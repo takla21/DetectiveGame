@@ -1,6 +1,21 @@
 ﻿namespace Detective;
 
-public class Clock
+public interface IClock
+{
+    public int Day { get; }
+
+    public int Hour { get; }
+
+    public int Minute { get; }
+
+    public event ClockTickEventHandler HourChanged;
+
+    public string FormattedTime { get; }
+
+    public void Update(float deltaT);
+}
+
+public class Clock :IClock
 {
     private float _seconds;
 

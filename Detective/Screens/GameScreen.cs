@@ -19,7 +19,7 @@ public sealed class GameScreen : IScreen
     private readonly IGameEngine _engine;
     private readonly IPlayerService _playerService;
     private readonly ILevelService _levelService;
-    private readonly Clock _clock;
+    private readonly IClock _clock;
     private readonly ScreenConfiguration _screenConfiguration;
     private readonly INotificationService __notificationService;
 
@@ -27,7 +27,7 @@ public sealed class GameScreen : IScreen
     private SpriteFont _font;
     private Hub _hub;
 
-    public GameScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, IGameEngine gameEngine, Clock clock, IPlayerService playerService, ILevelService levelService, INotificationService noticicationService)
+    public GameScreen(INavigationService navigationController, ScreenConfiguration screenConfiguration, IGameEngine gameEngine, IClock clock, IPlayerService playerService, ILevelService levelService, INotificationService noticicationService)
     {
         _navigationController = navigationController;
         _screenConfiguration = screenConfiguration;

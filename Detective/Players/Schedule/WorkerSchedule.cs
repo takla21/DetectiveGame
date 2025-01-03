@@ -17,7 +17,7 @@ public sealed class WorkerSchedule : SleeperSchedule
     private bool _isFirstDay;
     private WorkSchedule _currentSchedule;
 
-    public WorkerSchedule(ILevelService levelService, Clock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, IRandom random, ILevelPathFinding levelPathFinding) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random, levelPathFinding)
+    public WorkerSchedule(ILevelService levelService, IClock clock, Place workPlace, IEnumerable<WorkSchedule> workSchedule, IRandom random, ILevelPathFinding levelPathFinding) : base(levelService.Places.First(x => x.Information.Type == PlaceType.Houses), levelService.Information, clock, random, levelPathFinding)
     {
         _levelService = levelService;
         _workPlace = workPlace;

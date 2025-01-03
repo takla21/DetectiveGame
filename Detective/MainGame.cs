@@ -63,7 +63,7 @@ public class MainGame : Game
             .AddScoped<IGameEngine, GameEngine>()
             .AddScoped<ILevelService, LevelService>()
             .AddScoped<IPlayerService, PlayerService>()
-            .AddScoped<Clock>()
+            .AddScoped<IClock, Clock>()
             .AddSingleton<ILevelPathFinding, AStarLevelPathFinding>()
         );
 
@@ -97,7 +97,7 @@ public class MainGame : Game
                 var nameFilePath = Path.Combine(Content.RootDirectory, NameFilesName);
                 return new PlayerFactory(
                     s.GetRequiredService<ILevelService>(),
-                    s.GetRequiredService<Clock>(),
+                    s.GetRequiredService<IClock>(),
                     s.GetRequiredService<IRandom>(),
                     s.GetRequiredService<ILevelPathFinding>(),
                     s.GetRequiredService<PlayerConfiguration>(),

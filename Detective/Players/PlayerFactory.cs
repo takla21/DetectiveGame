@@ -18,12 +18,12 @@ public class PlayerFactory : IPlayerFactory
 {
     private readonly ILevelService _levelService;
     private readonly IRandom _random;
-    private readonly Clock _clock;
+    private readonly IClock _clock;
     private readonly ILevelPathFinding _levelPathFinding;
     private readonly string _namesFilePath;
     private readonly PlayerConfiguration _playerConfiguration;
 
-    public PlayerFactory(ILevelService levelService, Clock clock, IRandom random, ILevelPathFinding levelPathFinding, PlayerConfiguration playerConfiguration, string namesFilePath)
+    public PlayerFactory(ILevelService levelService, IClock clock, IRandom random, ILevelPathFinding levelPathFinding, PlayerConfiguration playerConfiguration, string namesFilePath)
     {
         _levelService = levelService;
         _clock = clock;

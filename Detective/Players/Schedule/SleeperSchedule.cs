@@ -24,7 +24,7 @@ public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
 
     protected bool ShouldLeaveOnNextIteration { get; set; }
 
-    public SleeperSchedule(Place home, LevelInformation levelInformation, Clock clock, IRandom random, ILevelPathFinding levelPathFinding)
+    public SleeperSchedule(Place home, LevelInformation levelInformation, IClock clock, IRandom random, ILevelPathFinding levelPathFinding)
     {
         _home = home;
         _levelInformation = levelInformation;
