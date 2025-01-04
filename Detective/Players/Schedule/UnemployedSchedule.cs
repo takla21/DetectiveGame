@@ -15,11 +15,6 @@ public sealed class UnemployedSchedule : SleeperSchedule
         _levelService = levelService;
     }
 
-    protected override void OnHourChanged(int day, int hour, int minute)
-    {
-        base.OnHourChanged(day, hour, minute);
-    }
-
     public override IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
     {
         var moves = new List<IMove>();
