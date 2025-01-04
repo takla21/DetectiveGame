@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detective", "Detective\Detective.csproj", "{C3234C0A-B7E1-4DCA-93ED-F521EB1F57D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Detective.Tests", "Detective.Tests\Detective.Tests.csproj", "{680107BE-582E-414F-8A1D-2DFD85C97762}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C3234C0A-B7E1-4DCA-93ED-F521EB1F57D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3234C0A-B7E1-4DCA-93ED-F521EB1F57D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3234C0A-B7E1-4DCA-93ED-F521EB1F57D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{680107BE-582E-414F-8A1D-2DFD85C97762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{680107BE-582E-414F-8A1D-2DFD85C97762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{680107BE-582E-414F-8A1D-2DFD85C97762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{680107BE-582E-414F-8A1D-2DFD85C97762}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

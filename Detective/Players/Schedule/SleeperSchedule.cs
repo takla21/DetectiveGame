@@ -92,7 +92,7 @@ public abstract class SleeperSchedule : IPlayerSchedule, IDisposable
 
     protected virtual bool CheckIsTimeToSleep(int currentHour)
     {
-        return currentHour >= TimeToSleep || currentHour <= TimeToWakeUp;
+        return currentHour >= TimeToSleep || currentHour < TimeToWakeUp;
     }
 
     public virtual IEnumerable<IMove> GenerateMoves(Vector2 currentPosition, PlaceInformation currentPlace)
