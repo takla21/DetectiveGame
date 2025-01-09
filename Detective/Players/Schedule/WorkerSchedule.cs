@@ -49,11 +49,11 @@ public sealed class WorkerSchedule : SleeperSchedule
 
         if (_currentSchedule.IsNightShift)
         {
-            _isWorking = hour >= _currentSchedule.StartHour || hour <= _currentSchedule.EndHour;
+            _isWorking = hour >= _currentSchedule.StartHour || hour < _currentSchedule.EndHour;
         }
         else
         {
-            _isWorking = hour >= _currentSchedule.StartHour && hour <= _currentSchedule.EndHour;
+            _isWorking = hour >= _currentSchedule.StartHour && hour < _currentSchedule.EndHour;
         }
 
         if (_isWorking != previousState)
