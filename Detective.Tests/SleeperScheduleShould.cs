@@ -1,6 +1,7 @@
 ﻿using AutoFixture;
 using Detective.Level;
 using Detective.Players;
+using Detective.Tests.Utils;
 using Detective.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -282,14 +283,6 @@ public class SleeperScheduleShould
                     hasExitedPlace = true;
                 }
             }
-        }
-    }
-
-    private class DummyMove : IMove
-    {
-        public MoveResult Execute(float deltaT, Vector2 currentPosition, bool isVisible)
-        {
-            return new MoveResult(true, currentPosition, true);
         }
     }
 
